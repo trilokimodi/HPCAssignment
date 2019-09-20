@@ -1,6 +1,6 @@
 #include<stdlib.h>
 #include<stdio.h>
-#define s 5
+#define s 30000
 void mul_cpx_separatefile(double * a_re, double * a_im, double * b_re, double * b_im, double * c_re, double * c_im)
 {
     for(int i=0;i<s;++i)

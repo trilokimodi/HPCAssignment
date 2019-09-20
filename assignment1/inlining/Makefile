@@ -1,14 +1,20 @@
+CF = -O2
 all : mainfile separatefile inlined
 
-mainfile : mainfile.c
-	gcc mainfile.c -o mainfile
+mainfile : mainfile.s
+	gcc mainfile.s -o mainfile
+
+mainfile.s : mainfile.c
+	gcc mainfile.c -S -O2 -o mainfile.s
+
+#mainfile : mainfile.c
+#gcc $(CF) mainfile.c -o mainfile
 
 separatefile : separatefile.c mul_cpx_separatefile.c
-	gcc separatefile.c mul_cpx_separatefile.c -o separatefile
+	gcc $(CF) separatefile.c mul_cpx_separatefile.c -o separatefile
 
 inlined : inlined.c
-	gcc inlined.c -o inlined
+	gcc $(CF) inlined.c -o inlined
 
 clean :
-	rm !(*.c|"Makefile") 
-
+	rm mainfile inlined separatefile *.s

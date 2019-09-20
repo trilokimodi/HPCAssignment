@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
-#define s 5
-void mul_cpx_mainfile(double * a_re, double * a_im, double * b_re, double * b_im, double * c_re, double * c_im);
-void mul_cpx_mainfile(double * a_re, double * a_im, double * b_re, double * b_im, double * c_re, double * c_im)
+#define s 30000
+static inline void mul_cpx_mainfile(double * a_re, double * a_im, double * b_re, double * b_im, double * c_re, double * c_im);
+static inline void mul_cpx_mainfile(double * a_re, double * a_im, double * b_re, double * b_im, double * c_re, double * c_im)
 {
     for(int i=0;i<s;++i)
     {
