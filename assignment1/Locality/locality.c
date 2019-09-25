@@ -72,12 +72,25 @@ double* row_sums(double * sums, const double ** matrix, size_t nrs, size_t ncs)
 
 double* col_sums(double * sums, const double ** matrix, size_t nrs, size_t ncs)
 {
-    for(size_t i = 0; i < nrs ; ++i)
+    for(size_t i = 0; i < ncs ; ++i)
     {
         double sum = 0;
-        for(size_t j = 0; j < ncs; ++j)
+        for(size_t j = 0; j < nrs; ++j)
             sum += matrix[j][i];
         sums[i] = sum;
     }
     return sums;
 }
+//fastest
+/*
+double* col_sums(double * sums, const double ** matrix, size_t nrs, size_t ncs)
+{
+    for(int i=0;i<ncs;++i)
+    sums[i] = 0;
+    for(size_t i = 0; i < nrs ; ++i)
+    {
+        for(size_t j = 0; j < ncs; ++j)
+            sums[j] += matrix[i][j];
+    }
+    return sums;
+}*/

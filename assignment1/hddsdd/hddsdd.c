@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<time.h>
 #include<math.h>
-#define iter 10000
+#define iter 1000
 void main()
 {
     FILE *fp;

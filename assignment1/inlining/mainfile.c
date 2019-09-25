@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<time.h>
 #define s 30000
 void mul_cpx_mainfile(double * a_re, double * a_im, double * b_re, double * b_im, double * c_re, double * c_im);
 void mul_cpx_mainfile(double * a_re, double * a_im, double * b_re, double * b_im, double * c_re, double * c_im)
@@ -23,11 +24,19 @@ void main()
         bs_re[i] = rand() % 100 + 1;
         bs_im[i] = rand() % 100 + 1;
     }
+    struct timespec t1,t2;
+    int count = 0;
+    timespec_get(&t1,TIME_UTC);
+    do
+    {    
     for(int i=0;i<s;++i)
     {
         mul_cpx_mainfile(&as_re[i],&as_im[i],&bs_re[i],&bs_im[i],&cs_re[i],&cs_im[i]);
     }
-    
-    for(int i=0;i<s;++i)
-        printf("A(%d) = %.2lf + %.2lf i\tB(%d) = %.2lf + %.2lf i\tC(%d) = %.2lf + %.2lf i\n",i,as_re[i],as_im[i],i,bs_re[i],bs_im[i],i,cs_re[i],cs_im[i]);
+    }while(++count<10000);
+    timespec_get(&t2,TIME_UTC);
+    double time = ((double)(t2.tv_sec-t1.tv_sec) + (double)(t2.tv_nsec - t1.tv_nsec)/1000000000) / 10000;
+    printf("Time involved by mainfile is %lf\n",time);
+    //for(int i=0;i<5;++i)
+    //printf("A(%d) = %.2lf + %.2lf i\tB(%d) = %.2lf + %.2lf i\tC(%d) = %.2lf + %.2lf i\n",i,as_re[i],as_im[i],i,bs_re[i],bs_im[i],i,cs_re[i],cs_im[i]);
 }
