@@ -117,8 +117,8 @@ void writingfile()
       do
       {
           flag = rand()%degree+1;
-          printf("%d\t",flag);
-          (void) fwrite(&color[flag][0], sizeof(color[flag][0]), 3, fptr);
+          for(int i=0;i<3;++i)
+          (void) fwrite(&color[flag][i], sizeof(color[flag][i]), 1, fptr);
       }while(++count2 <= 10);
     printf("\n");
     }while (++count <= 10);
