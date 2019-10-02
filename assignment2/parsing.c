@@ -9,7 +9,7 @@
 int degree, n_threads, lines;
 
 
-#define re 1000
+#define re 5
 #define im lines
 double a[re], b[re], sum;          //Not to be used
 
@@ -122,6 +122,7 @@ void writingfile()
       do
       {
           flag = rand()%degree+1;  
+          printf("%d ",flag);
           fwrite(colorstr[flag],3, 1 , fptr);
       }while(++count2 <= re);
     }while (++count <= lines);
