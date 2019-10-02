@@ -97,21 +97,24 @@ void main()
 void writingfile()
 {
     printf("begin write\n");
-    int count,count2,flag;
+    int count,count2,flag = degree;
     int color[3];
-    char colorstr[flag][5];
+    char colorstr[flag][7];
     FILE * fptr;
     fptr=fopen("pixel.ppm","w");
-    fprintf(fptr, "P3\n%d %d\n7\n", re, lines);
+    fprintf(fptr, "P3\n%d %d\n%d\n", re, lines,degree);
     //int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
     count = 1;count2=1;
     for(int i=0 ; i<degree ; ++i)
     { 
-        color[0]=(i) % degree;
-        color[1]=(i+2) % degree;
-        color[2]=(i+1) % degree;
-        sprintf(colorstr[i],"%d %d %d\t",color[0],color[1],color[2]);
+        color[0] = 5;
+        color[1] = 5;
+        color[2] = 5;
+        //color[0]=(i) % degree;
+        //color[1]=(i+2) % degree;
+        //color[2]=(i+1) % degree;
+        sprintf(colorstr[i],"%d %d %d ",color[0],color[1],color[2]);
         printf("%s\n",colorstr[i]);
     }
     printf("size of colorstr %d\n",strlen(colorstr[1]));
@@ -120,8 +123,8 @@ void writingfile()
       count2=1;
       do
       {
-          flag = rand()%degree; 
-          fwrite(colorstr[flag],11, 1 , fptr);
+          flag = rand() % degree; 
+          fwrite(colorstr[flag], 6 , 1 , fptr);
       }while(++count2 <= re);
       fwrite("\n",1,1,fptr);
     }while (++count <= lines);
