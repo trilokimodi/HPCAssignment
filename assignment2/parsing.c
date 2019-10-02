@@ -110,7 +110,7 @@ void writingfile()
     { 
         color[0] = 3;
         color[1] = 3;
-        color[2] = 3;
+        color[2] = 0;
         //color[0]=(i) % degree;
         //color[1]=(i+2) % degree;
         //color[2]=(i+1) % degree;
