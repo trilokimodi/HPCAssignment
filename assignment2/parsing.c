@@ -9,7 +9,7 @@
 int degree, n_threads, lines;
 
 
-#define re 500
+#define re 1000
 #define im lines
 double a[re], b[re], sum;          //Not to be used
 
@@ -98,28 +98,29 @@ void writingfile()
 {
     printf("begin write\n");
     int count,count2,flag;
-    char color[degree][3];
+    int color[3];
+    char colorstr[flag][3];
     FILE * fptr;
     fptr=fopen("pixel.ppm","w");
-    fprintf(fptr, "P6\n%d %d\n255\n", re, lines);
+    fprintf(fptr, "P3\n%d %d\n255\n", re, lines);
     int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
     count = 1;count2=1;
     for(int i=0 ; i<degree ; ++i)
-    {
-        color[i][0]=(i*11) % 256;
-        color[i][1]=((i+2)*11) % 256;
-        color[i][2]=((i+1)*11) % 256;
+    { 
+        color[0]=(i*11) % 256;
+        color[1]=((i+2)*11) % 256;
+        color[2]=((i+1)*11) % 256;
+        sprintf(colorstr[i],"%d %d %d",color[0],color[1],color[2]);
     }
-
     printf("assigned color\n");
     do
     {
       count2=0;
       do
       {
-          flag = rand()%degree+1;
-          fwrite(color[flag], sizeof(char) , 3 , fptr);
+          flag = rand()%degree+1;  
+          fwrite(colorstr[flag],sizeof(colorstr[flag]) , 1 , fptr);
       }while(++count2 <= re);
     }while (++count <= lines);
     fclose(fptr);
