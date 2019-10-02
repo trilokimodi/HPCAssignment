@@ -8,7 +8,7 @@
 #include<time.h>
 int degree, n_threads, lines;
 
-#define re 1000
+#define re 10
 #define im lines
 double a[re], b[re], sum;          //Not to be used
 
@@ -103,7 +103,7 @@ void writingfile()
     fprintf(fptr, "P3\n%d %d\n255\n", re, lines);
     int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
-    count = 0;count2=0;
+    count = 1;count2=1;
     for(int i=0;i<degree;++i)
     {
         color[i][0]=(i*11) % 256;
