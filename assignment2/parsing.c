@@ -99,7 +99,7 @@ void writingfile()
     printf("begin write\n");
     int count,count2,flag;
     int color[3];
-    char colorstr[flag][3];
+    char colorstr[flag][4];
     FILE * fptr;
     fptr=fopen("pixel.ppm","w");
     fprintf(fptr, "P3\n%d %d\n7\n", re, lines);
@@ -111,16 +111,18 @@ void writingfile()
         color[0]=(i*degree) % 7;
         color[1]=((i+2)*degree) % 7;
         color[2]=((i+1)*degree) % 7;
-        sprintf(colorstr[i],"%d %d %d",color[0],color[1],color[2]);
+        sprintf(colorstr[i],"%d%d%d",color[0],color[1],color[2]);
+        printf("%s\n",colorstr[i]);
     }
-    printf("assigned color\n");
+    printf("size of colorstr %d\n",strlen(colorstr[1]));
+    printf("%s\n",colorstr[0]);
     do
     {
       count2=0;
       do
       {
           flag = rand()%degree+1;  
-          fwrite(colorstr[flag],sizeof(colorstr[flag]) , 1 , fptr);
+          fwrite(colorstr[flag],3, 1 , fptr);
       }while(++count2 <= re);
     }while (++count <= lines);
     fclose(fptr);
