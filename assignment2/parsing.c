@@ -111,7 +111,7 @@ void writingfile()
         color[0]=(i) % degree;
         color[1]=(i+2) % degree;
         color[2]=(i+1) % degree;
-        sprintf(colorstr[i],"%d%d%d ",color[0],color[1],color[2]);
+        sprintf(colorstr[i],"%d %d %d\t",color[0],color[1],color[2]);
         printf("%s\n",colorstr[i]);
     }
     printf("size of colorstr %d\n",strlen(colorstr[1]));
@@ -121,7 +121,7 @@ void writingfile()
       do
       {
           flag = rand()%degree; 
-          fwrite(colorstr[flag],4, 1 , fptr);
+          fwrite(colorstr[flag],11, 1 , fptr);
       }while(++count2 <= re);
       fwrite("\n",1,1,fptr);
     }while (++count <= lines);
