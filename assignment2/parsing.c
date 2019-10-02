@@ -8,7 +8,8 @@
 #include<time.h>
 int degree, n_threads, lines;
 
-#define re 10
+
+#define re 500
 #define im lines
 double a[re], b[re], sum;          //Not to be used
 
@@ -100,16 +101,17 @@ void writingfile()
     char color[degree][3];
     FILE * fptr;
     fptr=fopen("pixel.ppm","w");
-    fprintf(fptr, "P3\n%d %d\n255\n", re, lines);
+    fprintf(fptr, "P6\n%d %d\n255\n", re, lines);
     int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
     count = 1;count2=1;
-    for(int i=0;i<degree;++i)
+    for(int i=0 ; i<degree ; ++i)
     {
         color[i][0]=(i*11) % 256;
         color[i][1]=((i+2)*11) % 256;
         color[i][2]=((i+1)*11) % 256;
     }
+
     printf("assigned color\n");
     do
     {
@@ -117,11 +119,9 @@ void writingfile()
       do
       {
           flag = rand()%degree+1;
-          for(int i=0;i<3;++i)
-          (void) fwrite(&color[flag][i], sizeof(color[flag][i]), 1, fptr);
-      }while(++count2 <= 10);
-    printf("\n");
-    }while (++count <= 10);
+          fwrite(color[flag], sizeof(char) , 3 , fptr);
+      }while(++count2 <= re);
+    }while (++count <= lines);
     fclose(fptr);
 }
 /*void threadsusage()
