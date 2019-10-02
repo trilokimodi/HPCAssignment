@@ -102,15 +102,15 @@ void writingfile()
     char colorstr[flag][3];
     FILE * fptr;
     fptr=fopen("pixel.ppm","w");
-    fprintf(fptr, "P3\n%d %d\n255\n", re, lines);
+    fprintf(fptr, "P3\n%d %d\n7\n", re, lines);
     int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
     count = 1;count2=1;
     for(int i=0 ; i<degree ; ++i)
     { 
-        color[0]=(i*11) % 256;
-        color[1]=((i+2)*11) % 256;
-        color[2]=((i+1)*11) % 256;
+        color[0]=(i*degree) % 7;
+        color[1]=((i+2)*degree) % 7;
+        color[2]=((i+1)*degree) % 7;
         sprintf(colorstr[i],"%d %d %d",color[0],color[1],color[2]);
     }
     printf("assigned color\n");
