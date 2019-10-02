@@ -9,7 +9,7 @@
 int degree, n_threads, lines;
 
 
-#define re 10
+#define re 1000
 #define im lines
 double a[re], b[re], sum;          //Not to be used
 
@@ -99,34 +99,31 @@ void writingfile()
     printf("begin write\n");
     int count,count2,flag;
     int color[3];
-    char colorstr[flag][5];
+    char colorstr[flag][7];
     FILE * fptr;
     fptr=fopen("pixel.ppm","w");
-    fprintf(fptr, "P3\n%d %d\n7\n", n_threads, lines);
-    int attr[7] = {1,2,3,4,5,6,7};
+    fprintf(fptr, "P3\n%d %d\n7\n", re, lines);
+    //int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
     count = 1;count2=1;
     for(int i=0 ; i<degree ; ++i)
     { 
-        color[0]=(i*degree) % 7;
-        color[1]=((i+2)*degree) % 7;
-        color[2]=((i+1)*degree) % 7;
-        sprintf(colorstr[i],"%d%d%d ",color[0],color[1],color[2]);
+        color[0]=(i) % degree;
+        color[1]=(i+2) % degree;
+        color[2]=(i+1) % degree;
+        sprintf(colorstr[i],"%d %d %d ",color[0],color[1],color[2]);
         printf("%s\n",colorstr[i]);
     }
     printf("size of colorstr %d\n",strlen(colorstr[1]));
-    printf("%s\n",colorstr[0]);
     do
     {
       count2=1;
       do
       {
-          flag = rand()%degree;  
-          printf("%d ",flag);
+          flag = rand()%degree; 
           fwrite(colorstr[flag],6, 1 , fptr);
-      }while(++count2 <= n_threads);
+      }while(++count2 <= re);
       fwrite("\n",1,1,fptr);
-      printf("\n");
     }while (++count <= lines);
     fclose(fptr);
 }
