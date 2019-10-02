@@ -3,7 +3,7 @@
  
 int main(void)
 {
-  const int dimx = 800, dimy = 800;
+  const int dimx = 8, dimy = 8;
   int i, j;
   FILE *fp = fopen("first.ppm", "wb"); /* b - binary mode */
   (void) fprintf(fp, "P6\n%d %d\n7\n", dimx, dimy);
