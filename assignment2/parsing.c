@@ -302,9 +302,10 @@ void writingfile(char * conval2, char * attr2)
     printf("size of colorstr %d\n",sizeof(colorstr[9]));
     fcolor=fopen("pixel.ppm","w");
     fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
+    count = 0;
     do
     {
-      count2=1;
+      count2=0;
       do
       {
           flag = attr2[count2]; 
@@ -315,11 +316,11 @@ void writingfile(char * conval2, char * attr2)
     fclose(fcolor);
     fgrey=fopen("pixelgrey.ppm","w");
     fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
-    count = 1;
+    count = 0;
     printf("size of colorstrgrey %d\n",sizeof(colorstr[49]));
     do
     {
-      count2=1;
+      count2=0;
       do
       {
           flag = conval2[count2]; 
