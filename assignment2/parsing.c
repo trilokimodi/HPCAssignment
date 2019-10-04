@@ -116,6 +116,7 @@ void main(int argc,const char *argv[])
 	        }
         conval[jx] = (char)conv_loc;
     }
+
   //  FOR LATER attractors[kx]=attr;
   //  /* conversion table /*
     for (size_t ix=0; ix<lines ; ++ix)
@@ -269,37 +270,65 @@ void writingfile(char * conval2, char * attr2)
 {
     printf("begin write\n");
     int count,count2,flag = degree;
-    int color[3];
-    char colorstr[flag][7];
-    FILE * fptr;
-    fptr=fopen("pixel.ppm","w");
-    fprintf(fptr, "P3\n%d %d\n%d\n", re, lines,degree);
+    //int color[3];
+    int colorgrey;
+    char colorstrgrey[49][12];
+    FILE *fcolor, *fgrey;
     //int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
     count = 0;count2=0;
-    for(int i=0 ; i<degree ; ++i)
+    char colorstr[12][11] = 
+    {
+        "255 0 0 ","0 255 0 ","0 0 255","255 255 0 ","0 255 255 ","255 0 255 ","255 126 0 ","255 0 126 ","126 0 255 ","126 255 0 "
+        ,"0 126 255 ","0 255 126 "
+    }; 
+    /*
+    for(int i=0 ; i<degree ;++i)
     { 
-        //color[0] = 3;
-        //color[1] = 3;
-        //color[2] = 0;
-        color[0]=(i) % degree;
-        color[1]=(i+2) % degree;
-        color[2]=(i+1) % degree;
+
+        //color[0]=(i) % degree;
+        //color[1]=(i+2) % degree;
+        //color[2]=(i+1) % degree;
         sprintf(colorstr[i],"%d %d %d ",color[0],color[1],color[2]);
         printf("%s\n",colorstr[i]);
     }
-    printf("size of colorstr %d\n",strlen(colorstr[1]));
+    */
+    for(int i=50,j=0 ; i>=0 ; --i,++j)
+    { 
+        colorgrey = 250-(5*i);
+        sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
+        printf("%s\n",colorstrgrey[j]);
+    }
+    printf("size of colorstr %d\n",sizeof(colorstr[9]));
+    fcolor=fopen("pixel.ppm","w");
+    fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
     do
     {
       count2=1;
       do
       {
           flag = attr2[count2]; 
-          fwrite(colorstr[flag], 6 , 1 , fptr);
+          fwrite(colorstr[flag], sizeof(colorstr[flag]) , 1 , fcolor);
       }while(++count2 < re);
-      fwrite("\n",1,1,fptr);
+      fwrite("\n",1,1,fcolor);
     }while (++count < lines);
-    fclose(fptr);
+    fclose(fcolor);
+    fgrey=fopen("pixelgrey.ppm","w");
+    fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
+    count = 1;
+    printf("size of colorstrgrey %d\n",sizeof(colorstr[49]));
+    do
+    {
+      count2=1;
+      do
+      {
+          flag = conval2[count2]; 
+          fwrite(colorstrgrey[flag], sizeof(colorstrgrey[flag]) , 1 , fgrey);
+      }while(++count2 < re);
+      fwrite("\n",1,1,fcolor);
+    }while (++count < lines);
+    fclose(fgrey);
+
 }
 /*void threadsusage()
 {
