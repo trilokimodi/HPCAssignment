@@ -180,18 +180,6 @@ void writingfile(char * conval2, char * attr2)
         colorgrey = 50-i;
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
     }
-    for(int i=0,j=0,k=0;i<lines;++i)
-    {
-        flag = conval2[i];
-        k=0;
-        do
-        {
-            colorstring[j++] = colorstrgrey[flag][k++];
-        }while(colorstrgrey[flag][k]!='\0');
-    }
-    printf("%c\nstrlen of total str = %d, size of str = %d\n",colorstring[6001],strlen(colorstring),sizeof(colorstring));
-    int l = strlen(colorstring);
-    //colorstring[l+1] = '\n';
     sprintf(filename,"newton_convergence_x%d.ppm",degree);
     fcolor=fopen(filename,"w");
     //fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
@@ -209,7 +197,7 @@ void writingfile(char * conval2, char * attr2)
     fclose(fcolor);
     sprintf(filename,"newton_attractors_x%d.ppm",degree);
     fgrey=fopen(filename,"w");
-    /*fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
+    fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
     for(int i=0;i<lines;++i)
     {
       for(int j=0;j<lines;++j)
@@ -218,14 +206,25 @@ void writingfile(char * conval2, char * attr2)
           fwrite(colorstrgrey[flag], strlen(colorstrgrey[flag]) , 1 , fgrey);
       }
       fwrite("\n",sizeof("\n"),1,fgrey);
-    }*/
+    }
+    /*for(int i=0,j=0,k=0;i<lines;++i)
+    {
+        flag = conval2[i];
+        k=0;
+        do
+        {
+            colorstring[j++] = colorstrgrey[flag][k++];
+        }while(colorstrgrey[flag][k]!='\0');
+    }
+    int l = strlen(colorstring);
+    //colorstring[l+1] = '\n';
     fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
     for(int j=0;j<lines;++j)
     {
         fwrite(colorstring, l , 1 , fgrey);
         fwrite("\n",sizeof("\n"),1,fgrey);
     }
-    fclose(fgrey);
+    fclose(fgrey);*/
 }
 
 void static inline analyse_parsing(int argc1,const char *argv1[])
