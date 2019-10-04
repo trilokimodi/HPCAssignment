@@ -191,7 +191,7 @@ void writingfile(char * conval2, char * attr2)
     }
     printf("%s\nstrlen of total str = %d, size of str = %d",colorstring,strlen(colorstring),sizeof(colorstring));
     int l = strlen(colorstring);
-    colorstring[l+1] = '\n';
+    //colorstring[l+1] = '\n';
     sprintf(filename,"newton_convergence_x%d.ppm",degree);
     fcolor=fopen(filename,"w");
     //fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
@@ -222,10 +222,10 @@ void writingfile(char * conval2, char * attr2)
     fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
     for(int j=0;j<lines;++j)
     {
-        fwrite(colorstrgrey, l+2 , 1 , fgrey);
+        fwrite(colorstr, l , 1 , fgrey);
+        fwrite("\n",sizeof("\n"),1,fgrey);
     }
     fclose(fgrey);
-
 }
 
 void static inline analyse_parsing(int argc1,const char *argv1[])
