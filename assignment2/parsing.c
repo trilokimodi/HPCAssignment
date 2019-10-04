@@ -300,13 +300,6 @@ void writingfile(char * conval2, char * attr2)
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
         //printf("%s\n",colorstrgrey[j]);
     }
-    for(int i=0;i<lines;++i)
-    {
-        flag = attr2[i];
-        printf("Attr flag = %d",flag);
-        flag = conval2[i];
-        printf("\tconval flag = %d\n",flag);
-    }
     //printf("size of colorstr %d\n",sizeof(colorstr[9]));
     fcolor=fopen("pixel.ppm","w");
     fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
@@ -321,7 +314,7 @@ void writingfile(char * conval2, char * attr2)
     }
     fclose(fcolor);
     fgrey=fopen("pixelgrey.ppm","w");
-    fprintf(fgrey, "P3\n%d %d\n250\n", re, lines);
+    fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
     printf("size of colorstrgrey %d\n",sizeof(colorstr[49]));
     for(int i=0;i<lines;++i)
     {
