@@ -34,10 +34,12 @@ void main(int argc,const char *argv[])
             cplx_roots[ix] = ptr_roots + jx;     
         }
     calc_roots(cplx_roots,degree);
-    for (size_t ix=0; ix<degree; ++ix)
+    //Dont want this
+    /*for (size_t ix=0; ix<degree; ++ix)
         {
             printf("real %f,im  %f \n", cplx_roots[ix][0], cplx_roots[ix][1]);
         }
+    */
     //int l=10; // number of rows and columns;
   
     /* allocate memory for all exact roots, should not be in newtonmethod later */    
@@ -87,7 +89,7 @@ void main(int argc,const char *argv[])
 	                {
 	                    conval[jx]= maxiter; // assign maximum no if iterations 
 	                    attr[jx]=(char)degree;
-	                    printf("No convergence, conval set to %hhud , attr set to %hhud \n ", conval[jx] , attr[jx]);
+	                    //printf("No convergence, conval set to %hhud , attr set to %hhud \n ", conval[jx] , attr[jx]);
 	                    break;
 	                }
 	            if (xsquare < 1.003) //1.002001 is minimal value)
@@ -98,14 +100,14 @@ void main(int argc,const char *argv[])
 		                        {
 		                            attr[jx]=(char)ix; 
 		                            // conval[jx]=(char)conv_loc;
-		                            printf("conv_loc %d ", conv_loc);// poses problems if conval_loc >250
+		                            //printf("conv_loc %d ", conv_loc);// poses problems if conval_loc >250
 		                            break;
 		                        }
 		                }   
 	                }
 	            if (attr[jx] != -1) 
                     {
-	                    printf("hey conv: %hhud , attr: %hhud ,real:%f, im: %f \n ",conval[jx], attr[jx] ,init_row[jx][0],init_row[jx][1]);
+	                    //printf("hey conv: %hhud , attr: %hhud ,real:%f, im: %f \n ",conval[jx], attr[jx] ,init_row[jx][0],init_row[jx][1]);
 	                    break;
 	                }
 	            fun_polar(&init_row[jx][0],&init_row[jx][1],degree); 
@@ -121,7 +123,7 @@ void main(int argc,const char *argv[])
   //  /* conversion table /*
     for (size_t ix=0; ix<lines ; ++ix)
     {
-        printf("conv %hhi , attr %hhi \n", conval[ix], attr[ix]);
+        //printf("conv %hhi , attr %hhi \n", conval[ix], attr[ix]);
     }
     writingfile(conval,attr);
     free(conval);
@@ -296,9 +298,16 @@ void writingfile(char * conval2, char * attr2)
     { 
         colorgrey = 250-(5*i);
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
-        printf("%s\n",colorstrgrey[j]);
+        //printf("%s\n",colorstrgrey[j]);
     }
-    printf("size of colorstr %d\n",sizeof(colorstr[9]));
+    for(int i=0;i<lines;++i)
+    {
+        flag = attr2[i];
+        printf("Attr flag = %d",flag);
+        flag = conval2[i];
+        printf("\tconval flag = %d\n",flag);
+    }
+    //printf("size of colorstr %d\n",sizeof(colorstr[9]));
     fcolor=fopen("pixel.ppm","w");
     fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
     for(int i=0;i<lines;++i)
