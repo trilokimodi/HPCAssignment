@@ -298,7 +298,8 @@ void writingfile(char * conval2, char * attr2)
     { 
         colorgrey = 255-(5*i);
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
-        //printf("%s\n",colorstrgrey[j]);
+        printf("%s\n",colorstrgrey[j]);
+        printf("size of this element is %d\n",strlen(colorstrgrey[j]));
     }
     //printf("size of colorstr %d\n",sizeof(colorstr[9]));
     fcolor=fopen("pixel.ppm","w");
@@ -320,8 +321,8 @@ void writingfile(char * conval2, char * attr2)
       for(int j=0;j<lines;++j)
       {
           flag = conval2[j];
-          printf("%s",colorstrgrey[flag]);
-          fwrite(colorstrgrey[flag], sizeof(colorstrgrey[flag]) , 1 , fgrey);
+          printf("%s colorstrgrey, %d  ",colorstrgrey[flag],strlen(colorstrgrey[flag]));
+          fwrite(colorstrgrey[flag], strlen(colorstrgrey[flag]) , 1 , fgrey);
       }
       fwrite("\n",sizeof("\n"),1,fgrey);
       printf("\n");
