@@ -165,12 +165,13 @@ void calc_roots(float** cplx_roots, int degree)
 
 void writingfile(char * conval2, char * attr2)
 {
-    int flag = degree, colorgrey;
+    int flag = degree, colorgrey,l;
     char filename[100];
     char colorstrgrey[51][13];
-    char* colorstring = (char*)malloc(sizeof(char)*lines*10);
+    char* greystring = (char*)malloc(sizeof(char)*lines*10);
+    char* colorstring = (char*)malloc(sizeof(char)*lines*7);
     FILE *fcolor, *fgrey;
-    char colorstr[12][13] = 
+    char colorstr[12][7] = 
     {
         "4 0 0 ","0 4 0 ","0 0 4 ","3 3 0 ","0 5 5 ","3 0 5 ","4 2 0 ","4 0 2 ","2 0 4 ","2 4 0 "
         ,"0 2 4 ","0 4 2 "
@@ -182,9 +183,23 @@ void writingfile(char * conval2, char * attr2)
     }
     sprintf(filename,"newton_convergence_x%d.ppm",degree);
     fcolor=fopen(filename,"w");
-    //fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
     fprintf(fcolor, "P3\n%d %d\n7\n", re, lines);
-    for(int i=0;i<lines;++i)
+    for(int i=0,j=0,k=0;i<lines;++i)
+    {
+        flag = attr2[i];
+        k=0;
+        do
+        {
+            colorstring[j++] = colorstr[flag][k++];
+        }while(colorstr[flag][k]!='\0');
+    }
+    l=strlen(colorstring);
+    for(int j=0;j<lines;++j)
+    {
+        fwrite(colorstring, l , 1 , fcolor);
+        fwrite("\n",sizeof("\n"),1,fcolor);
+    }
+    /*for(int i=0;i<lines;++i)
     {
       for(int j=0;j<lines;++j)
       {
@@ -193,7 +208,7 @@ void writingfile(char * conval2, char * attr2)
         fwrite(colorstr[flag], 6 , 1 , fcolor);
       }
       fwrite("\n",sizeof("\n"),1,fcolor);
-    }
+    }*/
     fclose(fcolor);
     sprintf(filename,"newton_attractors_x%d.ppm",degree);
     /*fgrey=fopen(filename,"w");
@@ -215,16 +230,16 @@ void writingfile(char * conval2, char * attr2)
         k=0;
         do
         {
-            colorstring[j++] = colorstrgrey[flag][k++];
+            greystring[j++] = colorstrgrey[flag][k++];
         }while(colorstrgrey[flag][k]!='\0');
     }
-    int l = strlen(colorstring);
-    //colorstring[l+1] = '\n';
+    l = strlen(greystring);
+    //greystring[l+1] = '\n';
     fgrey=fopen(filename,"w");
     fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
     for(int j=0;j<lines;++j)
     {
-        fwrite(colorstring, l , 1 , fgrey);
+        fwrite(greystring, l , 1 , fgrey);
         fwrite("\n",sizeof("\n"),1,fgrey);
     }
     fclose(fgrey);
