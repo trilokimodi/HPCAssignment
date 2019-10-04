@@ -167,7 +167,7 @@ void writingfile(char * conval2, char * attr2)
 {
     int flag = degree, colorgrey;
     char filename[100];
-    char colorstrgrey[50][13];
+    char colorstrgrey[51][13];
     char* colorstring = (char*)malloc(sizeof(char)*lines*10);
     FILE *fcolor, *fgrey;
     char colorstr[12][13] = 
@@ -175,7 +175,7 @@ void writingfile(char * conval2, char * attr2)
         "4 0 0 ","0 4 0 ","0 0 4 ","3 3 0 ","0 5 5 ","3 0 5 ","4 2 0 ","4 0 2 ","2 0 4 ","2 4 0 "
         ,"0 2 4 ","0 4 2 "
     }; 
-    for(int i=50,j=0 ; j<50 ; --i,++j)
+    for(int i=50,j=0 ; j<=50 ; --i,++j)
     { 
         colorgrey = 50-i;
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
@@ -196,7 +196,7 @@ void writingfile(char * conval2, char * attr2)
     }
     fclose(fcolor);
     sprintf(filename,"newton_attractors_x%d.ppm",degree);
-    fgrey=fopen(filename,"w");
+    /*fgrey=fopen(filename,"w");
     fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
     for(int i=0;i<lines;++i)
     {
@@ -207,7 +207,9 @@ void writingfile(char * conval2, char * attr2)
       }
       fwrite("\n",sizeof("\n"),1,fgrey);
     }
-    /*for(int i=0,j=0,k=0;i<lines;++i)
+    fclose(fgrey);
+    */
+    for(int i=0,j=0,k=0;i<lines;++i)
     {
         flag = conval2[i];
         k=0;
@@ -218,13 +220,14 @@ void writingfile(char * conval2, char * attr2)
     }
     int l = strlen(colorstring);
     //colorstring[l+1] = '\n';
+    fgrey=fopen(filename,"w");
     fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
     for(int j=0;j<lines;++j)
     {
         fwrite(colorstring, l , 1 , fgrey);
         fwrite("\n",sizeof("\n"),1,fgrey);
     }
-    fclose(fgrey);*/
+    fclose(fgrey);
 }
 
 void static inline analyse_parsing(int argc1,const char *argv1[])
