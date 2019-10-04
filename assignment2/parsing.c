@@ -320,9 +320,11 @@ void writingfile(char * conval2, char * attr2)
       for(int j=0;j<lines;++j)
       {
           flag = conval2[j];
+          printf("%s",colorstrgrey[flag]);
           fwrite(colorstrgrey[flag], sizeof(colorstrgrey[flag]) , 1 , fgrey);
       }
       fwrite("\n",sizeof("\n"),1,fgrey);
+      printf("\n");
     }
     fclose(fgrey);
 
