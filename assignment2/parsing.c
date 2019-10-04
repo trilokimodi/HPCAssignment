@@ -309,7 +309,7 @@ void writingfile(char * conval2, char * attr2)
       for(int j=0;j<lines;++j)
       {
         flag = attr2[j];
-        fwrite(colorstr[flag], sizeof(colorstr[flag]) , 1 , fcolor);
+        fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
       }
       fwrite("\n",sizeof("\n"),1,fcolor);
     }
@@ -321,11 +321,9 @@ void writingfile(char * conval2, char * attr2)
       for(int j=0;j<lines;++j)
       {
           flag = conval2[j];
-          printf("%s colorstrgrey, %d  ",colorstrgrey[flag],strlen(colorstrgrey[flag]));
           fwrite(colorstrgrey[flag], strlen(colorstrgrey[flag]) , 1 , fgrey);
       }
       fwrite("\n",sizeof("\n"),1,fgrey);
-      printf("\n");
     }
     fclose(fgrey);
 
