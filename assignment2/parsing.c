@@ -278,11 +278,15 @@ void writingfile(char * conval2, char * attr2)
     FILE *fcolor, *fgrey;
     //int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
-    char colorstr[12][11] = 
+    char colorstr[12][13] = 
     {
-        "255 0 0 ","0 255 0 ","0 0 255","255 255 0 ","0 255 255 ","255 0 255 ","255 126 0 ","255 0 126 ","126 0 255 ","126 255 0 "
+        "255 0 0 ","0 255 0 ","0 0 255 ","255 255 0 ","0 255 255 ","255 0 255 ","255 126 0 ","255 0 126 ","126 0 255 ","126 255 0 "
         ,"0 126 255 ","0 255 126 "
     }; 
+    /*for(int i=0;i<12;++i)
+    {
+        printf("%s\n",colorstr[i]);
+    }*/
     /*
     for(int i=0 ; i<degree ;++i)
     { 
@@ -298,8 +302,8 @@ void writingfile(char * conval2, char * attr2)
     { 
         colorgrey = 255-(5*i);
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
-        printf("%s\n",colorstrgrey[j]);
-        printf("size of this element is %d\n",strlen(colorstrgrey[j]));
+        //printf("%s\n",colorstrgrey[j]);
+        //printf("size of this element is %d\n",strlen(colorstrgrey[j]));
     }
     //printf("size of colorstr %d\n",sizeof(colorstr[9]));
     fcolor=fopen("pixel.ppm","w");
@@ -309,9 +313,11 @@ void writingfile(char * conval2, char * attr2)
       for(int j=0;j<lines;++j)
       {
         flag = attr2[j];
+        //printf("%s, %d\n",colorstr[flag],strlen(colorstr[flag]));
         fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
       }
       fwrite("\n",sizeof("\n"),1,fcolor);
+      //printf("\n");
     }
     fclose(fcolor);
     fgrey=fopen("pixelgrey.ppm","w");
