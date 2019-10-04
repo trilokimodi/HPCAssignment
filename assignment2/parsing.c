@@ -272,7 +272,7 @@ void writingfile(char * conval2, char * attr2)
     int flag = degree;
     //int color[3];
     int colorgrey;
-    char colorstrgrey[49][12];
+    char colorstrgrey[51][12];
     FILE *fcolor, *fgrey;
     //int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
@@ -312,7 +312,7 @@ void writingfile(char * conval2, char * attr2)
     }
     fclose(fcolor);
     fgrey=fopen("pixelgrey.ppm","w");
-    fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
+    fprintf(fgrey, "P3\n%d %d\n250\n", re, lines);
     printf("size of colorstrgrey %d\n",sizeof(colorstr[49]));
     for(int i=0;i<lines;++i)
     {
