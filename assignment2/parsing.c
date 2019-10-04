@@ -274,7 +274,7 @@ void writingfile(char * conval2, char * attr2)
     int flag = degree;
     //int color[3];
     int colorgrey;
-    char colorstrgrey[51][12];
+    char colorstrgrey[51][13];
     FILE *fcolor, *fgrey;
     //int attr[7] = {1,2,3,4,5,6,7};
     //get 1000 attr from transfer
@@ -294,9 +294,9 @@ void writingfile(char * conval2, char * attr2)
         printf("%s\n",colorstr[i]);
     }
     */
-    for(int i=50,j=0 ; i>=0 ; --i,++j)
+    for(int i=51,j=0 ; j<51 ; --i,++j)
     { 
-        colorgrey = 250-(5*i);
+        colorgrey = 255-(5*i);
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
         //printf("%s\n",colorstrgrey[j]);
     }
@@ -320,7 +320,7 @@ void writingfile(char * conval2, char * attr2)
     {
       for(int j=0;j<lines;++j)
       {
-          flag = conval2[j]; 
+          flag = conval2[j];
           fwrite(colorstrgrey[flag], sizeof(colorstrgrey[flag]) , 1 , fgrey);
       }
       fwrite("\n",sizeof("\n"),1,fcolor);
