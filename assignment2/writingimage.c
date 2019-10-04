@@ -168,7 +168,7 @@ void writingfile(char * conval2, char * attr2)
     int flag = degree, colorgrey;
     char filename[100];
     char colorstrgrey[50][13];
-    char* colorstring = (char*)malloc(sizeof(char)*lines*9);
+    char* colorstring = (char*)malloc(sizeof(char)*lines*10);
     FILE *fcolor, *fgrey;
     char colorstr[12][13] = 
     {
@@ -180,15 +180,16 @@ void writingfile(char * conval2, char * attr2)
         colorgrey = 50-i;
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
     }
-    for(int i=0,j=0;i<lines;++i)
+    for(int i=0,j=0,k=0;i<lines;++i)
     {
         flag = conval2[i];
-        colorstring[j] = *(colorstrgrey[flag]);
-        if(flag<10)
-        j+=6;
-        else
-        j+=9;        
+        k=0;
+        do
+        {
+            colorstring[j++] = colorstrgrey[flag][k++];
+        }while(colorstrgrey[flag][k]!='\0');
     }
+    printf("%s\nstrlen of total str = %d, size of str = %d",colorstring,strlen(colorstring),sizeof(colorstring));
     int l = strlen(colorstring);
     colorstring[l+1] = '\n';
     sprintf(filename,"newton_convergence_x%d.ppm",degree);
