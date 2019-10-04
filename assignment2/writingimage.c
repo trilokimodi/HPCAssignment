@@ -189,7 +189,7 @@ void writingfile(char * conval2, char * attr2)
             colorstring[j++] = colorstrgrey[flag][k++];
         }while(colorstrgrey[flag][k]!='\0');
     }
-    printf("%s\nstrlen of total str = %d, size of str = %d",colorstring,strlen(colorstring),sizeof(colorstring));
+    printf("%c\nstrlen of total str = %d, size of str = %d\n",colorstring[6001],strlen(colorstring),sizeof(colorstring));
     int l = strlen(colorstring);
     //colorstring[l+1] = '\n';
     sprintf(filename,"newton_convergence_x%d.ppm",degree);
@@ -222,7 +222,7 @@ void writingfile(char * conval2, char * attr2)
     fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
     for(int j=0;j<lines;++j)
     {
-        fwrite(colorstr, l , 1 , fgrey);
+        fwrite(colorstring, l , 1 , fgrey);
         fwrite("\n",sizeof("\n"),1,fgrey);
     }
     fclose(fgrey);
