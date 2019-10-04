@@ -12,17 +12,11 @@ void calc_roots(float** cplx_roots, int degree);
 void fun_polar(double * x0re, double * x0im, int  d);
 void static inline analyse_parsing(int argc1,const char *argv1[]);
 void writingfile(char * conval2,char * attr2);
-//void calc_roots(double** cplx_roots, int degree);
 char * convergences;
 char * attractors;
 char * item_done;
 #define re lines
 #define im lines
-//#define threads n_threads
-//#define block_size (im / n_threads)
-//pthread_mutex_t mutex_sum;
-//double a[re], b[re], sum;          //Not to be used
-//void* dotprod(void* arg);      //Not to be used
 
 void main(int argc,const char *argv[])
 {
@@ -33,23 +27,6 @@ void main(int argc,const char *argv[])
         {
             cplx_roots[ix] = ptr_roots + jx;     
         }
-    calc_roots(cplx_roots,degree);
-    //Dont want this
-    /*for (size_t ix=0; ix<degree; ++ix)
-        {
-            printf("real %f,im  %f \n", cplx_roots[ix][0], cplx_roots[ix][1]);
-        }
-    */
-    //int l=10; // number of rows and columns;
-  
-    /* allocate memory for all exact roots, should not be in newtonmethod later */    
-    /*double *  ptr_roots= (double*) malloc(sizeof(double) * (degree*2));
-    double ** cplx_roots = (double**) malloc(sizeof(double*) * degree);
-    for ( size_t ix = 0, jx = 0; ix < degree; ++ix, jx+=2)
-        {
-           cplx_roots[ix] = ptr_roots + jx;
-        }*/
-     /*the true roots */
     calc_roots(cplx_roots, degree);
   
     /* allocate memory for all initialvalues of x, this should happen within every thread?*/ 
@@ -175,19 +152,6 @@ void fun_polar(double * x0re, double * x0im, int  d)
 	        *x0im  =*x0im *(1-1.0/d) + sin(angle)*divisor;
 	    }
 }
-  
-
-/*void calc_roots(double** cplx_roots, int d){                                                                                                                                             
-  double twopi=6.283185;
-  cplx_roots[0][0]=1.0; // always one real root                                                                                                                                         
-  cplx_roots[0][1]=0.0;
-  
-  for (size_t ix=1; ix < d; ++ix){
-    cplx_roots[ix][0]= cos ((double)ix*twopi/d);
-    cplx_roots[ix][1]= sin ((double)ix*twopi/d);
-  }
-}*/
-
 void calc_roots(float** cplx_roots, int degree)
 {                                                                                                                                                                      float twopi=6.283185;
   cplx_roots[0][0]=1.0; // always one real root
@@ -199,118 +163,52 @@ void calc_roots(float** cplx_roots, int degree)
   }
 }
 
-
-  // if d is 1, then newton always converges to 1+ 0i in one iteration, super simple
-  //all roots are on unit circle, can we use this in determining if more iterations are necessary? how?
-
-/*#define s 10
-void main()
-{
-    
-    clock_t t;
-    t=clock();
-    int ** matrix = (int**) malloc(sizeof(int*)*s);
-    int * array;   
-           
-    //Non Contiguous Memory
-    
-    /*for(int i=0;i<s;++i)
-        matrix[i]=(int*) malloc(sizeof(int)*s);
-    for(int i=0;i<s;++i)
-        for(int j=0;j<s;++j)
-            matrix[i][j]=i+j;
-   */ 
-
-    /*Contiguous memory
-    array = (int*) malloc(sizeof(int)*s*s);
-    for(int i=0,j=0;i<s;++i,j+=s)
-    matrix[i]=array+j;
-    for(int i=0;i<s;++i)
-    for(int j=0;j<s;++j)
-    matrix[i][j]=i+j;
-    
-    FILE * fptr;
-    fptr=fopen("readwrite.bin","w");
-    
-    int count=0;
-    for(int i=0;i<s;++i)
-        for(int j=0;j<s;++j)
-        {
-            fwrite(&matrix[i][j],sizeof(matrix[i][j]),1,fptr);
-        }
-    fclose(fptr);
-    t=clock() - t;
-    double time = (double)(t)/CLOCKS_PER_SEC;
-    printf("\nTime taken by to write in the file is %lf miliseconds\n\n",time*1000);
-    
-    //reading the file
-    
-    fptr=fopen("readwrite.bin","r");
-    printf("Reading matrix from file\nMatrix || File \n");
-    int arr[s][s];
-    for(int i=0;i<s;++i)
-        for(int j=0;j<s;++j)
-            fread(&arr[i][j],sizeof(int),1,fptr);
-    count=0;
-    for(int i=0;i<s;++i)
-        {
-            for(int j=0;j<s;++j)
-            {
-                printf("%d||%d\t",matrix[i][j],arr[i][j]);
-                if(arr[i][j]!=matrix[i][j])
-                    ++count;
-            }
-            printf("\n");
-        }
-    if(count==0)
-    printf("Both the matrix and file content are same\n");
-    fclose(fptr);
-    free(matrix);
-    free(array);
-}*/
 void writingfile(char * conval2, char * attr2)
 {
-    printf("begin write\n");
     int flag = degree, colorgrey;
     char filename[100];
-    char colorstrgrey[51][13];
+    char colorstrgrey[50][13];
+    char* colorstring = (char*)malloc(sizeof(char)*lines*9);
     FILE *fcolor, *fgrey;
     char colorstr[12][13] = 
     {
-        "255 0 0 ","0 255 0 ","0 0 255 ","255 255 0 ","0 255 255 ","255 0 255 ","255 126 0 ","255 0 126 ","126 0 255 ","126 255 0 "
-        ,"0 126 255 ","0 255 126 "
+        "4 0 0 ","0 4 0 ","0 0 4 ","3 3 0 ","0 5 5 ","3 0 5 ","4 2 0 ","4 0 2 ","2 0 4 ","2 4 0 "
+        ,"0 2 4 ","0 4 2 "
     }; 
-    /*
-    for(int i=0 ; i<degree ;++i)
+    for(int i=50,j=0 ; j<50 ; --i,++j)
     { 
-
-        //color[0]=(i) % degree;
-        //color[1]=(i+2) % degree;
-        //color[2]=(i+1) % degree;
-        sprintf(colorstr[i],"%d %d %d ",color[0],color[1],color[2]);
-    }
-    */
-    for(int i=51,j=0 ; j<51 ; --i,++j)
-    { 
-        colorgrey = 255-(5*i);
+        colorgrey = 50-i;
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
     }
+    for(int i=0,j=0;i<lines;++i)
+    {
+        flag = conval2[i];
+        colorstring[j] = *(colorstrgrey[flag]);
+        if(flag<10)
+        j+=6;
+        else
+        j+=9;        
+    }
+    int l = strlen(colorstring);
+    colorstring[l+1] = '\n';
     sprintf(filename,"newton_convergence_x%d.ppm",degree);
     fcolor=fopen(filename,"w");
-    fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
+    //fprintf(fcolor, "P3\n%d %d\n255\n", re, lines);
+    fprintf(fcolor, "P3\n%d %d\n7\n", re, lines);
     for(int i=0;i<lines;++i)
     {
       for(int j=0;j<lines;++j)
       {
         flag = attr2[j];
-        fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
+        //fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
+        fwrite(colorstr[flag], 6 , 1 , fcolor);
       }
       fwrite("\n",sizeof("\n"),1,fcolor);
     }
     fclose(fcolor);
     sprintf(filename,"newton_attractors_x%d.ppm",degree);
     fgrey=fopen(filename,"w");
-    fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
+    /*fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
     for(int i=0;i<lines;++i)
     {
       for(int j=0;j<lines;++j)
@@ -319,110 +217,49 @@ void writingfile(char * conval2, char * attr2)
           fwrite(colorstrgrey[flag], strlen(colorstrgrey[flag]) , 1 , fgrey);
       }
       fwrite("\n",sizeof("\n"),1,fgrey);
+    }*/
+    fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
+    for(int j=0;j<lines;++j)
+    {
+        fwrite(colorstrgrey, l+2 , 1 , fgrey);
     }
     fclose(fgrey);
 
 }
-/*void threadsusage()
-{
-    int ret;
-    size_t i, j;
-    pthread_t n_threads[n_threads];
-
-    
-
-    for (i=0; i < re; ++i)
-        a[i] = b[i] = 2;
-    sum = 0;
-
-  // thread creation and joining
-
-    pthread_mutex_init(&mutex_sum, NULL);
-    for (j=0, i=0; j < n_threads; ++j, i+=block_size) 
-    {
-        double ** arg = malloc(2*sizeof(double*));
-        arg[0] = a+i; 
-        arg[1] = b+i;
-        if (ret = pthread_create(n_threads+j, NULL, dotprod, (void*)arg)) 
-        {
-            printf("Error creating thread: \n", ret);
-            exit(1);
-        }
-    }
-
-    for (j=0; j < n_threads; ++j) 
-    {
-        if (ret = pthread_join(n_threads[j], NULL)) 
-        {
-            printf("Error joining thread: %d\n", ret);
-            exit(1);
-        }
-    }
-    pthread_mutex_destroy(&mutex_sum);
-    printf("sum = %f\n", sum);
-}
-void* dotprod(void *restrict arg) {
-  double * a_loc = ((double**)arg)[0];
-  double * b_loc = ((double**)arg)[1];
-  free(arg);
-
-  double sum_loc = 0;
-  for (size_t i=0; i < block_size; ++i)
-    sum_loc += a_loc[i]*b_loc[i];
-
-  pthread_mutex_lock(&mutex_sum);
-  sum += sum_loc;
-  pthread_mutex_unlock(&mutex_sum);
-}
-*/
-
 
 void static inline analyse_parsing(int argc1,const char *argv1[])
 {
     int index,iter=0;
     char * args;
     while((index=getopt(argc1,(char* const*)argv1,"-t:-l::"))!=-1)
-    {
-      // To get a better understanding of iterations, optarg and argv values. 
-      /*printf("\nIteration no %d, argc = %d\n",++iter,argc);
-        for(int i=0;i<argc;++i)
-        {
-            printf("\noptarg is %s \t argv is %s",optarg,argv[i]);
-        }*/
-      
+    {      
         ++iter;
         if(index=='?')
             printf("Invalid arguement/No value was passed for %c\n",optopt);
         else if(index=='t')
         {
-            //printf("\nThe value of optargs is %s",optarg);
             if(optarg[0]=='-')
             {
-                //index = ':';
                 printf("No value is passed for threads\n");
-                //continue;
             }
             else
             {
                 args = optarg;
-                //printf("\nThe value of args is %s",args);
                 n_threads = strtol(args,(char ** restrict)argv1,10);
-                printf("The number of threads is %d\n",n_threads);
+                //printf("The number of threads is %d\n",n_threads);
             }
         }
         else if(index=='l')
         {
             if(optarg[0]=='-')
             {
-                //index = ':';
                 printf("No value is passed for lines\n");
             }
             else
             {
                 args = optarg;
-                //printf("\nThe value of args is %s",args);
                 lines = strtol(args,(char ** restrict)argv1,10);
-                printf("The no of lines is %d\n",lines);
+                //printf("The no of lines is %d\n",lines);
             }
         }
         else
@@ -430,19 +267,18 @@ void static inline analyse_parsing(int argc1,const char *argv1[])
             
             if(!optarg[0])
             {
-                //index = ':';
                 printf("No value is passed for degree\n");
             }
             else
             {
                 args = optarg;
                 degree = strtol(args,(char ** restrict)argv1,10);
-                printf("The value of degree is %d\n",degree);
+                //printf("The value of degree is %d\n",degree);
             }
         }
     }
     if(iter==0)
     {
-        printf("No value is passed for both threads, degree and lines\n");
+        printf("No value is passed for threads, degree and lines\n");
     }
 }
