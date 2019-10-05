@@ -158,7 +158,7 @@ void* write_main( void * args)
                 }while(colorstr[flag][k]!='\0');
             }
             len=strlen(colorstring);
-            //printf("%s\n",colorstring);
+            printf("%s\n",colorstring);
             fwrite(colorstring, len , 1 , fcolor);
             fwrite("\n",sizeof("\n"),1,fcolor);
             for(int j=0;j<lines;++j)
