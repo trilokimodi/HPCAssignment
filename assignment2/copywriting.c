@@ -81,45 +81,105 @@ void main(int argc,const char *argv[])
 
 void* write_main( void * args)
 {
-  struct timespec sleep_timespec;
-  sleep_timespec.tv_sec = 0;
-  sleep_timespec.tv_nsec = 250;
-  
-  char * attractor; 
-  char * convergence;
-  char * item_done_loc = (char*)calloc(l, sizeof(char));
-  for ( size_t ix = 0; ix < l; )
+    struct timespec sleep_timespec;
+    sleep_timespec.tv_sec = 0;
+    sleep_timespec.tv_nsec = 250;
+    int flag = degree, colorgrey,len;
+    char filename[100];
+    char colorstrgrey[51][13];
+    char* greystring = (char*)malloc(sizeof(char)*lines*10);
+    char* colorstring = (char*)malloc(sizeof(char)*lines*7);
+    FILE *fcolor, *fgrey;
+    char colorstr[12][7] = 
     {
-      pthread_mutex_lock(&item_done_mutex);
-      if ( item_done[ix] != 0 )
-	{
-	  memcpy(item_done_loc, item_done, l*sizeof(char));
-	}
-      pthread_mutex_unlock(&item_done_mutex);
+    "4 0 0 ","0 4 0 ","0 0 4 ","3 3 0 ","0 5 5 ","3 0 5 ","4 2 0 ","4 0 2 ","2 0 4 ","2 4 0 "
+    ,"0 2 4 ","0 4 2 "
+    }; 
+    for(int i=50,j=0 ; j<=50 ; --i,++j)
+    { 
+        colorgrey = 50-i;
+        sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
+    }
+    struct timespec tbegin, tend;
+    double timeelapsed;
+    int count = 1;
+    char * attractor; 
+    char * convergence;
+    char * item_done_loc = (char*)calloc(l, sizeof(char));
+    sprintf(filename,"newton_convergence_x%d.ppm",degree);
+    fcolor=fopen(filename,"w");
+    fprintf(fcolor, "P3\n%d %d\n7\n", re, lines);
+    sprintf(filename,"newton_attractors_x%d.ppm",degree);
+    fgrey=fopen(filename,"w");
+    fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
+    for ( size_t ix = 0; ix < l; )
+    {
+        pthread_mutex_lock(&item_done_mutex);
+        if ( item_done[ix] != 0 )
+	    {
+	        memcpy(item_done_loc, item_done, l*sizeof(char));
+	    }
+        pthread_mutex_unlock(&item_done_mutex);
       
-      if ( item_done_loc[ix] == 0 ) {
-	nanosleep(&sleep_timespec, NULL);
-	continue;
-      }
+        if ( item_done_loc[ix] == 0 ) {
+	    nanosleep(&sleep_timespec, NULL);
+	    continue;
+        }
+        //Method 1
+
+        //timespec_get(&tbegin,TIME_UTC);
+        //do{
+        
+        count = 1;
+        //Method 1
+
+        //timespec_get(&tbegin,TIME_UTC);
+        //do{
+        //for(int i=0;i<lines;++i)
+        //{
       
-      for ( ; ix < l && item_done_loc[ix] != 0; ++ix )
-	{
-	  convergence = convergences[ix]; // this is input for trilo
-	  attractor = attractors[ix]; // same here
-	  // time for triloki to write result
-      pthread_mutex_lock(&item_done_mutex);
-	  writingfile(convergence,attractor);	
-	  printf("row ix = %u \n ",ix);
+        //}
+     
+      
+        for ( ; ix < l && item_done_loc[ix] != 0; ++ix )
+	    {
+            printf("%d\n",ix);
+            convergence = convergences[ix]; // this is input for trilo
+	        attractor = attractors[ix]; // same here
+	        // time for triloki to write result
+
+            for(int i=0,j=0,k=0;i<lines;++i)
+            {
+                flag = attractor[i];
+                k=0;
+                do
+                {
+                colorstring[j++] = colorstr[flag][k++];
+                }while(colorstr[flag][k]!='\0');
+            }
+            len=strlen(colorstring);
+            //printf("%s\n",colorstring);
+            fwrite(colorstring, len , 1 , fcolor);
+            fwrite("\n",sizeof("\n"),1,fcolor);
+            for(int j=0;j<lines;++j)
+            {
+                flag = convergence[j];
+                fwrite(colorstrgrey[flag], strlen(colorstrgrey[flag]) , 1 , fgrey);
+            }
+            fwrite("\n",sizeof("\n"),1,fgrey);
+            //pthread_mutex_lock(&item_done_mutex);
+	        //writingfile(convergence,attractor);	
 	  
-	  //for(size_t i = 0; i < l; ++i)
-	  // printf("Convergences[%zu] = %hhu, attractors[%zu] = %hhu\n", i, convergence[i], i, attractor[i]);
-	  
-	  free(attractor);
-	  free(convergence);
-	}
+	        //for(size_t i = 0; i < l; ++i)
+	        // printf("Convergences[%zu] = %hhu, attractors[%zu] = %hhu\n", i, convergence[i], i, attractor[i]);
+	    }
+        free(attractor);
+	    free(convergence);
+        fclose(fcolor);
+        fclose(fgrey); 
     }
 
-  free(item_done_loc);
+    free(item_done_loc);
 }
 
 void* newton_main(void* args)
@@ -138,8 +198,8 @@ void* newton_main(void* args)
     for ( size_t row = offset; row < l   ; row += n_threads )
     {
         // Allocate memory for all initialvalues of x, this should happen within every thread      
-      //  float * x0_col_entries= (float*) malloc(sizeof(float)*(l*2));
-       // float ** x0_col = (float**) malloc(sizeof(float*)*l); // Contains x0 values for one row, all columns
+        //  float * x0_col_entries= (float*) malloc(sizeof(float)*(l*2));
+        // float ** x0_col = (float**) malloc(sizeof(float*)*l); // Contains x0 values for one row, all columns
         //for ( size_t ix = 0, jx = 0; ix < l; ++ix, jx+=2)
         //{
          //   x0_col[ix] = x0_col_entries + jx;
@@ -328,7 +388,7 @@ void writingfile(char * conval2, char * attr2)
     //for(int j=0;j<lines;++j)
     //{
         printf("%s\n",colorstring);
-        fwrite(colorstring, l , 1 , fcolor);
+        fwrite(colorstring, len , 1 , fcolor);
         fwrite("\n",sizeof("\n"),1,fcolor);
     //}
     fclose(fcolor);
