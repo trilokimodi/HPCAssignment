@@ -10,7 +10,8 @@ CC = gcc			# compiler to use
 CFLAGS = -O0 -lm -pthread
 
 #SRCS := $(wildcard *.c)
-SRCS := writingimage.c
+#SRCS := writingimage.c
+SRCS := copywriting.c
 # SRCS := $(filter-out mul_cpx_separatefile.c, $(SRCS)) # Doesn't compile mul_cpx_separatefile.c
 BINS := $(SRCS:%.c=%)
 

@@ -17,7 +17,8 @@ char * attractors;
 char * item_done;
 #define re lines
 #define im lines
-
+#define B 1000000000
+#define SIZE 1000
 void main(int argc,const char *argv[])
 {
     analyse_parsing(argc,argv);
@@ -182,6 +183,15 @@ void writingfile(char * conval2, char * attr2)
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
     }
     sprintf(filename,"newton_convergence_x%d.ppm",degree);
+    
+    struct timespec tbegin, tend;
+    double timeelapsed;
+    int count = 1;
+    printf("BEGIN\n");
+    //Method 1
+
+    timespec_get(&tbegin,TIME_UTC);
+    do{
     fcolor=fopen(filename,"w");
     fprintf(fcolor, "P3\n%d %d\n7\n", re, lines);
     for(int i=0,j=0,k=0;i<lines;++i)
@@ -199,7 +209,20 @@ void writingfile(char * conval2, char * attr2)
         fwrite(colorstring, l , 1 , fcolor);
         fwrite("\n",sizeof("\n"),1,fcolor);
     }
-    /*for(int i=0;i<lines;++i)
+    fclose(fcolor);
+    }while(++count<= SIZE);
+    timespec_get(&tend,TIME_UTC);
+    timeelapsed = (double)(tend.tv_sec - tbegin.tv_sec)+(double)(tend.tv_nsec - tbegin.tv_nsec)/B;
+    printf("Time taken for method 1 attractors is %.9lf\n",timeelapsed);
+
+    count = 1;
+    //Method 2
+
+    timespec_get(&tbegin,TIME_UTC);
+    do{
+    fcolor=fopen(filename,"w");
+    fprintf(fcolor, "P3\n%d %d\n7\n", re, lines);
+    for(int i=0;i<lines;++i)
     {
       for(int j=0;j<lines;++j)
       {
@@ -208,11 +231,22 @@ void writingfile(char * conval2, char * attr2)
         fwrite(colorstr[flag], 6 , 1 , fcolor);
       }
       fwrite("\n",sizeof("\n"),1,fcolor);
-    }*/
+    }
     fclose(fcolor);
+    }while(++count<= SIZE);
+    timespec_get(&tend,TIME_UTC);
+    timeelapsed = (double)(tend.tv_sec - tbegin.tv_sec)+(double)(tend.tv_nsec - tbegin.tv_nsec)/B;
+    printf("Time taken for method 2 attractors is %.9lf\n",timeelapsed);
+
     sprintf(filename,"newton_attractors_x%d.ppm",degree);
-    /*fgrey=fopen(filename,"w");
-    fprintf(fgrey, "P3\n%d %d\n255\n", re, lines);
+    
+    count = 1;
+    //Method 1
+
+    timespec_get(&tbegin,TIME_UTC);
+    do{
+    fgrey=fopen(filename,"w");
+    fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
     for(int i=0;i<lines;++i)
     {
       for(int j=0;j<lines;++j)
@@ -223,7 +257,16 @@ void writingfile(char * conval2, char * attr2)
       fwrite("\n",sizeof("\n"),1,fgrey);
     }
     fclose(fgrey);
-    */
+    }while(++count<=SIZE);
+    timespec_get(&tend,TIME_UTC);
+    timeelapsed = (double)(tend.tv_sec - tbegin.tv_sec)+(double)(tend.tv_nsec - tbegin.tv_nsec)/B;
+    printf("Time taken for method 1 convergence is %.9lf\n",timeelapsed);
+
+    count =1;
+    //Method 2   
+
+    timespec_get(&tbegin,TIME_UTC);
+    do{
     for(int i=0,j=0,k=0;i<lines;++i)
     {
         flag = conval2[i];
@@ -243,6 +286,38 @@ void writingfile(char * conval2, char * attr2)
         fwrite("\n",sizeof("\n"),1,fgrey);
     }
     fclose(fgrey);
+    }while(++count<= SIZE);
+    timespec_get(&tend,TIME_UTC);
+    timeelapsed = (double)(tend.tv_sec - tbegin.tv_sec)+(double)(tend.tv_nsec - tbegin.tv_nsec)/B;
+    printf("Time taken for method 2 convergence is %.9lf\n",timeelapsed);
+
+    count = 1;
+    //Method 3
+
+    timespec_get(&tbegin,TIME_UTC);
+    do{
+    for(int i=0,j=0;i<lines;++i)
+    {
+        greystring[j++] = conval2[i];
+        greystring[j++] = ' ';
+        greystring[j++] = conval2[i];
+        greystring[j++] = ' ';
+        greystring[j++] = conval2[i];
+        greystring[j++] = ' ';
+    }
+    fgrey=fopen(filename,"w");
+    fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
+    l=strlen(greystring);
+    for(int j=0;j<lines;++j)
+    {
+        fwrite(greystring, l , 1 , fgrey);
+        fwrite("\n",sizeof("\n"),1,fgrey);
+    }
+    fclose(fgrey);
+    }while(++count<=SIZE);
+    timespec_get(&tend,TIME_UTC);
+    timeelapsed = (double)(tend.tv_sec - tbegin.tv_sec)+(double)(tend.tv_nsec - tbegin.tv_nsec)/B;
+    printf("Time taken for method 3 convergence is %.9lf\n",timeelapsed);
 }
 
 void static inline analyse_parsing(int argc1,const char *argv1[])
