@@ -109,7 +109,6 @@ void* write_main( void * args)
 	  // time for triloki to write result
       pthread_mutex_lock(&item_done_mutex);
 	  writingfile(convergence,attractor);	
-      pthread_mutex_unlock(&item_done_mutex);  
 	  printf("row ix = %u \n ",ix);
 	  
 	  //for(size_t i = 0; i < l; ++i)
@@ -288,10 +287,7 @@ void fun_polar(float * x0re, float * x0im, int  d)
 
 void writingfile(char * conval2, char * attr2)
 {
-    //printf("%d,%d, %d, %d, %d",n_threads,lines,degree,d,l);
-    for(int i=0;i<lines;++i) {
-    printf("attr %hhi, conv %hhi\n",attr2[i],conval2[i]);}
-    int flag = degree, colorgrey,l;
+    int flag = degree, colorgrey,len;
     char filename[100];
     char colorstrgrey[51][13];
     char* greystring = (char*)malloc(sizeof(char)*lines*10);
@@ -328,9 +324,10 @@ void writingfile(char * conval2, char * attr2)
             colorstring[j++] = colorstr[flag][k++];
         }while(colorstr[flag][k]!='\0');
     }
-    l=strlen(colorstring);
+    len=strlen(colorstring);
     //for(int j=0;j<lines;++j)
     //{
+        printf("%s\n",colorstring);
         fwrite(colorstring, l , 1 , fcolor);
         fwrite("\n",sizeof("\n"),1,fcolor);
     //}
@@ -444,6 +441,7 @@ void writingfile(char * conval2, char * attr2)
     timeelapsed = (double)(tend.tv_sec - tbegin.tv_sec)+(double)(tend.tv_nsec - tbegin.tv_nsec)/B;
     printf("Time taken for method 3 convergence is %.9lf\n",timeelapsed);
     */
+   pthread_mutex_unlock(&item_done_mutex);
 }
 
 void static inline analyse_parsing(int argc1,const char *argv1[])
