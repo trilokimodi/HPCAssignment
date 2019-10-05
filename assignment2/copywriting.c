@@ -148,18 +148,11 @@ void* write_main( void * args)
 	        attractor = attractors[ix]; // same here
 	        // time for triloki to write result
 
-            for(int i=0,j=0,k=0;i<lines;++i)
+            for(int j=0;j<lines;++j)
             {
-                flag = attractor[i];
-                k=0;
-                do
-                {
-                colorstring[j++] = colorstr[flag][k++];
-                }while(colorstr[flag][k]!='\0');
+                flag = attractor[j];
+                fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
             }
-            len=strlen(colorstring);
-            printf("%s\n",colorstring);
-            fwrite(colorstring, len , 1 , fcolor);
             fwrite("\n",sizeof("\n"),1,fcolor);
             for(int j=0;j<lines;++j)
             {
@@ -172,13 +165,12 @@ void* write_main( void * args)
 	  
 	        //for(size_t i = 0; i < l; ++i)
 	        // printf("Convergences[%zu] = %hhu, attractors[%zu] = %hhu\n", i, convergence[i], i, attractor[i]);
-	    }
-        free(attractor);
-	    free(convergence);
-        fclose(fcolor);
-        fclose(fgrey); 
+	    } 
     }
-
+    free(attractor);
+	free(convergence);
+    fclose(fcolor);
+    fclose(fgrey);
     free(item_done_loc);
 }
 
@@ -501,7 +493,6 @@ void writingfile(char * conval2, char * attr2)
     timeelapsed = (double)(tend.tv_sec - tbegin.tv_sec)+(double)(tend.tv_nsec - tbegin.tv_nsec)/B;
     printf("Time taken for method 3 convergence is %.9lf\n",timeelapsed);
     */
-   pthread_mutex_unlock(&item_done_mutex);
 }
 
 void static inline analyse_parsing(int argc1,const char *argv1[])
