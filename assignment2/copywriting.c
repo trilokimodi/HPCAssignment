@@ -7,7 +7,7 @@
 #include<stddef.h>
 #include<time.h>
 #include<math.h>
-int degree, n_threads, lines;
+static int degree, n_threads, lines;
 void static inline analyse_parsing(int argc1,const char *argv1[]);
 void fun_polar(float * x0re, float * x0im, int  d);
 void calc_roots(float** roots, int d);
@@ -107,7 +107,9 @@ void* write_main( void * args)
 	  convergence = convergences[ix]; // this is input for trilo
 	  attractor = attractors[ix]; // same here
 	  // time for triloki to write result
-	  writingfile(convergence,attractor);	  
+      pthread_mutex_lock(&item_done_mutex);
+	  writingfile(convergence,attractor);	
+      pthread_mutex_unlock(&item_done_mutex);  
 	  printf("row ix = %u \n ",ix);
 	  
 	  //for(size_t i = 0; i < l; ++i)
@@ -286,6 +288,9 @@ void fun_polar(float * x0re, float * x0im, int  d)
 
 void writingfile(char * conval2, char * attr2)
 {
+    //printf("%d,%d, %d, %d, %d",n_threads,lines,degree,d,l);
+    for(int i=0;i<lines;++i) {
+    printf("attr %hhi, conv %hhi\n",attr2[i],conval2[i]);}
     int flag = degree, colorgrey,l;
     char filename[100];
     char colorstrgrey[51][13];
