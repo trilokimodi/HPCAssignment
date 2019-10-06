@@ -163,8 +163,8 @@ void* write_main( void * args)
 		    greystring[j++] = colorstrgrey[convergence_flag][k++];
 		  } while(colorstrgrey[convergence_flag][k]!='\0');
 	      }
-	    //len = strlen(greystring);
-	    fwrite(greystring, strlen(greystring), 1 , fgrey);
+	    len = strlen(greystring);
+	    fwrite(greystring, len, 1 , fgrey);
 	    fwrite("\n",sizeof("\n"),1,fgrey);
 
 	    /*
