@@ -84,7 +84,7 @@ void* write_main( void * args)
     struct timespec sleep_timespec;
     sleep_timespec.tv_sec = 0;
     sleep_timespec.tv_nsec = 250;
-    int flag = degree, colorgrey,len;
+    int flag = degree, colorgrey , len;
     char filename[100];
     char colorstrgrey[51][13];
     char* greystring = (char*)malloc(sizeof(char)*lines*10);
