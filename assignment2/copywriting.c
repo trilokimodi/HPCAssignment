@@ -143,7 +143,6 @@ void* write_main( void * args)
       
         for ( ; ix < l && item_done_loc[ix] != 0; ++ix )
 	    {
-            printf("%d\n",ix);
             convergence = convergences[ix]; // this is input for trilo
 	        attractor = attractors[ix]; // same here
 	        // time for triloki to write result

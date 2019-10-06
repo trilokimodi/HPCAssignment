@@ -7,7 +7,7 @@
 
 CC = gcc			# compiler to use
 
-CFLAGS = -O0 -lm -pthread
+CFLAGS = -O2 -lm -pthread
 
 #SRCS := $(wildcard *.c)
 #SRCS := writingimage.c
