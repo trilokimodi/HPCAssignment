@@ -229,8 +229,13 @@ void* newton_main(void* args)
         
   /* loops over every row */
     for ( size_t row = offset; row < l   ; row += n_threads )
-      { float imagpart= -2 + 4 * (float)row / (l - 1); //imaginary part is the same for every complex value in one row.
-   
+      { 
+        
+        for(size_t col = 0; col <l ; ++col)
+        {
+          x0_col[col][0] = -2 + 4 * (float)col / (l - 1);
+          x0_col[col][1]= -2 + 4 * (float)row / (l - 1); //imaginary part is the same for every complex value in one row.
+        }
         // The newton iteration
         char maxiter = 50;
         // Allocate memory for attractor/convergence
@@ -240,8 +245,8 @@ void* newton_main(void* args)
         // For x0 in row
         for (size_t jx=0; jx < l; ++jx)
 	  {
-	    x0_col[jx][0] = -2 + 4 * (float)row / (l - 1);
-	    x0_col[jx][1] = imagpart; // initializing this:
+	    //x0_col[jx][0] = -2 + 4 * (float)row / (l - 1);
+	    //x0_col[jx][1] = imagpart; // initializing this:
 	    attractor[jx] = -1;
             unsigned short int k = 0;
             
