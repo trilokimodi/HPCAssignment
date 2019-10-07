@@ -148,25 +148,49 @@ void* write_main( void * args)
             convergence = convergences[ix]; // this is input for trilo
 	        attractor = attractors[ix]; // same here
 	        // time for triloki to write result
+            for(int i=0,j=0,k=0;i<lines;++i)
+            {
+                flag = attractor[i];
+                k=0;
+                do
+                {
+                colorstring[j++] = colorstr[flag][k++];
+                }while(colorstr[flag][k]!='\0');
+            }
 
-            for(int j=0;j<lines;++j)
+            len=strlen(colorstring);
+            fwrite(colorstring, len , 1 , fcolor);
+            fwrite("\n",sizeof("\n"),1,fcolor);
+
+            for(int i=0,j=0,k=0;i<lines;++i)
+            {
+            flag = convergence[i];
+            k=0;
+            do
+                {
+                    greystring[j++] = colorstrgrey[flag][k++];
+                }while(colorstrgrey[flag][k]!='\0');
+            }   
+            len = strlen(greystring);
+            fwrite(greystring, l , 1 , fgrey);
+            fwrite("\n",sizeof("\n"),1,fgrey);
+
+            /*for(int j=0;j<lines;++j)
             {
                 flag = attractor[j];
                 fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
             }
-            fwrite("\n",sizeof("\n"),1,fcolor);
+            fwrite("\n",sizeof("\n"),1,fcolor);*/
+
+
             
-            for(int j=0;j<lines;++j)
+            /*for(int j=0;j<lines;++j)
             {
                 flag = convergence[j];
                 fwrite(colorstrgrey[flag], strlen(colorstrgrey[flag]) , 1 , fgrey);
             }
-            fwrite("\n",sizeof("\n"),1,fgrey);
-            //pthread_mutex_lock(&item_done_mutex);
-	        //writingfile(convergence,attractor);	
-	  
-	        //for(size_t i = 0; i < l; ++i)
-	        // printf("Convergences[%zu] = %hhu, attractors[%zu] = %hhu\n", i, convergence[i], i, attractor[i]);
+            fwrite("\n",sizeof("\n"),1,fgrey);*/
+
             free(attractor);
 	        free(convergence);
         } 
