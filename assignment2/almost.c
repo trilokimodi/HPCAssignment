@@ -143,7 +143,7 @@ void* write_main( void * args)
 	    //{
 	    // printf("%s\n",colorstring);
 	    fwrite(colorstring, 6*l , 1 , fcolor); // 6*l because colostr is always of length 6
-	    fwrite("\n",sizeof("\n"),1,fcolor);
+	    fwrite("\n",1,1,fcolor);
 		
 	    /*
 	      for(int j=0;j<lines;++j)
@@ -165,7 +165,7 @@ void* write_main( void * args)
 	      }
 	    len = strlen(greystring);
 	    fwrite(greystring, len, 1 , fgrey);
-	    fwrite("\n",sizeof("\n"),1,fgrey);
+	    fwrite("\n",1,1,fgrey);
 
 	    /*
 	      for(int j=0;j<lines;++j)
