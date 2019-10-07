@@ -86,7 +86,7 @@ void* write_main( void * args)
     sleep_timespec.tv_nsec = 250;
     int flag = degree, colorgrey , len;
     char filename[100];
-    char colorstrgrey[51][13];
+    char colorstrgrey[51][10];
     char* greystring = (char*)malloc(sizeof(char)*lines*10);
     char* colorstring = (char*)malloc(sizeof(char)*lines*7);
     FILE *fcolor, *fgrey;
