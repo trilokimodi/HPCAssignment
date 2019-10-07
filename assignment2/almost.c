@@ -128,7 +128,7 @@ void* write_main( void * args)
 	    attractor = attractors[ix]; // same here
 	    // time for triloki to write result
 
-	    for(int i=0,j=0,k=0; i<lines ;++i)
+	    /*for(int i=0,j=0,k=0; i<lines ;++i)
 	      {
 		attractorflag = attractor[i];
 		k=0;
@@ -136,7 +136,7 @@ void* write_main( void * args)
 		  {
 		    colorstring[j++] = colorstr[attractorflag][k++];
 		  } while(colorstr[attractorflag][k]!='\0');
-	      }
+	      }*/
 	    //len=strlen(colorstring);
 	    
 	    //for(int j=0;j<lines;++j)
@@ -145,16 +145,16 @@ void* write_main( void * args)
 	    fwrite(colorstring, 6*l , 1 , fcolor); // 6*l because colostr is always of length 6
 	    fwrite("\n",1,1,fcolor);
 		
-	    /*
+	    
 	      for(int j=0;j<lines;++j)
 	      {
-	      flag = attractor[j];
-	      fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
+	      attractorflag = attractor[j];
+	      fwrite(colorstr[attractorflag], strlen(colorstr[attractorflag]) , 1 , fcolor);
 	      }
 	      fwrite("\n",sizeof("\n"),1,fcolor);
-	    */            
+	                
 	    
-	    for(int i=0,j=0,k=0;i<lines;++i)
+	    /*for(int i=0,j=0,k=0;i<lines;++i)
 	      {
 		convergence_flag = convergence[i];
 		k=0;
@@ -162,19 +162,19 @@ void* write_main( void * args)
 		  {
 		    greystring[j++] = colorstrgrey[convergence_flag][k++];
 		  } while(colorstrgrey[convergence_flag][k]!='\0');
-	      }
+	      }*/
 	    len = strlen(greystring);
 	    fwrite(greystring, len, 1 , fgrey);
 	    fwrite("\n",1,1,fgrey);
 
-	    /*
+	    
 	      for(int j=0;j<lines;++j)
 	      {
 	      //convergence_flag = convergence[j];
 	      fwrite(colorstrgrey[convergence_flag], strlen(colorstrgrey[convergence[j]]) , 1 , fgrey);
 	      }
 	      fwrite("\n",sizeof("\n"),1,fgrey); 
-	    */
+	    
 	    //pthread_mutex_lock(&item_done_mutex);
 	    //writingfile(convergence,attractor);	
 		
