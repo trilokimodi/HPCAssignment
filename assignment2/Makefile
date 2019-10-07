@@ -12,7 +12,7 @@ CFLAGS = -O2 -lm -pthread
 #SRCS := $(wildcard *.c)
 #SRCS := writingimage.c
 #SRCS := almost.c
-SRCS := copywriting.c
+SRCS := mastercopywriting.c
 # SRCS := $(filter-out mul_cpx_separatefile.c, $(SRCS)) # Doesn't compile mul_cpx_separatefile.c
 BINS := $(SRCS:%.c=%)
 
