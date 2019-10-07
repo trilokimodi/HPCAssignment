@@ -86,7 +86,7 @@ void* write_main( void * args)
     sleep_timespec.tv_nsec = 250;
     int flag = degree, colorgrey , len;
     char filename[100];
-    //char colorstrgrey[51][13];
+    char colorstrgrey[51][13];
     char* greystring = (char*)malloc(sizeof(char)*lines*10);
     char* colorstring = (char*)malloc(sizeof(char)*lines*7);
     FILE *fcolor, *fgrey;
@@ -95,11 +95,11 @@ void* write_main( void * args)
     "4 0 0 ","0 4 0 ","0 0 4 ","3 3 0 ","0 5 5 ","3 0 5 ","4 2 0 ","4 0 2 ","2 0 4 ","2 4 0 "
     ,"0 2 4 ","0 4 2 "
     }; 
-    /*for(int i=50,j=0 ; j<=50 ; --i,++j)
+    for(int i=50,j=0 ; j<=50 ; --i,++j)
     { 
         colorgrey = 50-i;
         sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
-    }*/
+    }
     struct timespec tbegin, tend;
     double timeelapsed;
     int count = 1;
@@ -162,7 +162,7 @@ void* write_main( void * args)
             fwrite(colorstring, len , 1 , fcolor);
             fwrite("\n",sizeof("\n"),1,fcolor);
 
-            /*for(int i=0,j=0,k=0;i<lines;++i)
+            for(int i=0,j=0,k=0;i<lines;++i)
             {
             flag = convergence[i];
             k=0;
@@ -171,9 +171,8 @@ void* write_main( void * args)
                 greystring[j++] = colorstrgrey[flag][k++];
                 }while(colorstrgrey[flag][k]!='\0');
             }   
-            len = strlen(greystring);*/
-
-            for(int i=0,j=0;i<lines;++i)
+            //len = strlen(greystring);
+            /*for(int i=0,j=0;i<lines;++i)
                 {
                 greystring[j++] = convergence[i];
                 greystring[j++] = ' ';
@@ -182,6 +181,7 @@ void* write_main( void * args)
                 greystring[j++] = convergence[i];
                 greystring[j++] = ' ';
                 }
+            */
             len = strlen(greystring);
             fwrite(greystring, len , 1 , fgrey);
             fwrite("\n",sizeof("\n"),1,fgrey);
