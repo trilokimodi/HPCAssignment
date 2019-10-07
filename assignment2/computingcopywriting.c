@@ -13,7 +13,7 @@ void fun_polar(float * x0re, float * x0im, int  d);
 void calc_roots(float** roots, int d);
 void* newton_main(void* args);
 void* write_main( void * args);
-// void writingfile(char * conval2,char * attr2);
+void writingfile(char * conval2,char * attr2);
 char ** convergences;
 char ** attractors;
 char * item_done;
@@ -84,7 +84,7 @@ void* write_main( void * args)
     struct timespec sleep_timespec;
     sleep_timespec.tv_sec = 0;
     sleep_timespec.tv_nsec = 250;
-    int flag = degree, colorgrey,len;
+    int flag = degree, colorgrey , len;
     char filename[100];
     char colorstrgrey[51][13];
     char* greystring = (char*)malloc(sizeof(char)*lines*10);
@@ -106,12 +106,14 @@ void* write_main( void * args)
     char * attractor; 
     char * convergence;
     char * item_done_loc = (char*)calloc(l, sizeof(char));
-    sprintf(filename,"newton_convergence_x%d.ppm",degree);
+    sprintf(filename,"newton_attractors_x%d.ppm",degree);
     fcolor=fopen(filename,"w");
     fprintf(fcolor, "P3\n%d %d\n7\n", re, lines);
-    sprintf(filename,"newton_attractors_x%d.ppm",degree);
+
+    sprintf(filename,"newton_convergence_x%d.ppm",degree);
     fgrey=fopen(filename,"w");
     fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
+    
     for ( size_t ix = 0; ix < l; )
     {
         pthread_mutex_lock(&item_done_mutex);
@@ -143,7 +145,6 @@ void* write_main( void * args)
       
         for ( ; ix < l && item_done_loc[ix] != 0; ++ix )
 	    {
-	      // printf("%d\n",ix);
             convergence = convergences[ix]; // this is input for trilo
 	        attractor = attractors[ix]; // same here
 	        // time for triloki to write result
@@ -154,6 +155,7 @@ void* write_main( void * args)
                 fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
             }
             fwrite("\n",sizeof("\n"),1,fcolor);
+            
             for(int j=0;j<lines;++j)
             {
                 flag = convergence[j];
@@ -165,42 +167,19 @@ void* write_main( void * args)
 	  
 	        //for(size_t i = 0; i < l; ++i)
 	        // printf("Convergences[%zu] = %hhu, attractors[%zu] = %hhu\n", i, convergence[i], i, attractor[i]);
-	    free(attractor);
-	    free(convergence);	    
-	    } 
+            free(attractor);
+	        free(convergence);
+        } 
     }
     fclose(fcolor);
     fclose(fgrey);
     free(item_done_loc);
-    free(greystring); // might be redundant if troli remose entire method
-    free(colorstring); // might be redundant if troli remose entire method
+    free(colorstring);
+    free(greystring);
 }
 
 void* newton_main(void* args)
 {
-  if (d==1)
-    {
-      for (int row=0;row<l;++row)
-	{
-	  char * attractor = (char*) calloc(l, sizeof(char)); //it is not globally allocated now
-	  char * convergence= (char*) malloc (sizeof(char)*l); //it is not globally allocated now  	
-	  for (int ix=0; ix<l; ++ix)
-	    {
-	    convergence[ix]=1;
-	    // attractor[ix]=0
-		  };
-	  
-	  convergences[row] = convergence;
-	  attractors[row]= attractor;
-	  
-	  pthread_mutex_lock(&item_done_mutex);
-	  item_done[row] = 1;
-	  pthread_mutex_unlock(&item_done_mutex);
-	}
-      // printf("d==1\n");
-    }
-  // now if d is not equal to one...
-  else {
   size_t offset = *((size_t*) args);
   free(args);
  // Allocate memory for all initialvalues of x, this should happen oncewithin every thread      
@@ -209,12 +188,11 @@ void* newton_main(void* args)
         for ( size_t ix = 0, jx = 0; ix < l; ++ix, jx+=2)
         {
             x0_col[ix] = x0_col_entries + jx;
-	    x0_col[ix][0] = -2 + 4 * (float)ix / (l - 1); // initialize colum index of initla guesses
-	}  
+        }  
         
   /* loops over every row */
     for ( size_t row = offset; row < l   ; row += n_threads )
-      { float imagpart= -2 + 4 * (float)row / (l - 1); //imaginary part is the same for every complex value in one row.
+    {
         // Allocate memory for all initialvalues of x, this should happen within every thread      
         //  float * x0_col_entries= (float*) malloc(sizeof(float)*(l*2));
         // float ** x0_col = (float**) malloc(sizeof(float*)*l); // Contains x0 values for one row, all columns
@@ -222,69 +200,73 @@ void* newton_main(void* args)
         //{
          //   x0_col[ix] = x0_col_entries + jx;
         //}  
+        float imagpart = -2 + 4 * (float)row / (l - 1);
+        // Initialise x0_col
+        for (size_t col = 0; col < l; ++col)
+        {
+            x0_col[col][0] = -2 + 4 * (float)col / (l - 1);
+            //x0_col[col][1] = -2 + 4 * (float)row / (l - 1);
+            x0_col[col][1] = imagpart;
+
+        }
         
-        // Initialise x0_cols imaginary part
-        //for (size_t col = 0; col < l; ++col)
-        //{
-        // x0_col[col][0] = -2 + 4 * (float)col / (l - 1);
-        //   x0_col[col][1] = -2 + 4 * (float)row / (l - 1);
-        // 
-        //   }
             
         // The newton iteration
         char maxiter = 50;
         // Allocate memory for attractor/convergence
 	char * attractor =(char*) calloc(l, sizeof(char)); //it is globally allocated now
 	char * convergence=(char*) calloc(l, sizeof(char)); //it is globally allocated now  
-	
+
         // For x0 in row
         for (size_t jx=0; jx < l; ++jx)
-	  {
-	    x0_col[jx][1] = imagpart; // initializing this:)
-	    attractor[jx] = -1;
+        {
+            //x0_col[jx][1] = -2 + 4 * (float)row / (l - 1);
+            attractor[jx] = -1;
             unsigned short int k = 0;
             
             // For iteration step k
             for (; ; ++k)
-	      {
-	      float xsquare = x0_col[jx][0]*x0_col[jx][0] + x0_col[jx][1]*x0_col[jx][1]; // useful computattion
+            {
+                float xsquare = x0_col[jx][0]*x0_col[jx][0] + x0_col[jx][1]*x0_col[jx][1]; // useful computattion
                 
-                // If x_k^2 close enough to the origin, we bother checking convergence
-                if (xsquare < 1.0021) //1.002001 is minimal value)
-		  {
-		  // For each exact root, with index ix
-		  for (int ix=0; ix < d; ++ix)
-		      {
-		      // If distance from root < tol, we are done
-		      if ((roots[ix][0]-x0_col[jx][0])*(roots[ix][0]-x0_col[jx][0]) + ((roots[ix][1]-x0_col[jx][1])*(roots[ix][1]-x0_col[jx][1])) < 10e-6)
-			  {
-			  attractor[jx] = (char)ix;
-                            // printf("k %d ", k);//  no longer poses problems if convergence_loc >250
-                            break;
-                        }
-                    }
-                }
-                // If convergence was reached, stop iteration
-                if (attractor[jx] != -1) {
-		  //	printf("hey conv: %hhud , attractor: %hhud ,real:%f, im: %f \n ",convergence[jx], attractor[jx] ,x0_col[jx][0],x0_col[jx][1]);
-		  break;
-                }
-		
-		// If x_k really far away
-                if (xsquare < 0.000001 || x0_col[jx][0] > 10000000000 || x0_col[jx][0] <-10000000000 || x0_col[jx][1] > 10000000000 || x0_col[jx][1]<-10000000000)   
-		  {
-		  convergence[jx]= maxiter; // assign maximum no if iterations 
+                // If x_k really far away
+                if (xsquare < 0.000001 || x0_col[jx][0] > 10000000000 || x0_col[jx][0] < -10000000000 || x0_col[jx][1] > 10000000000 || x0_col[jx][1] < -10000000000)   
+                {
+                    convergence[jx]= maxiter; // assign maximum no if iterations 
                     attractor[jx]=(char)d;
                     //printf("No convergence, convergence set to %hhud , attractor set to %hhud \n ", convergence[jx] , attractor[jx]);
                     break;
                 }
 
+                // If x_k^2 close enough to the origin, we bother checking convergence
+                if (xsquare < 1.003) //1.002001 is minimal value)
+                {
+                    // For each exact root, with index ix
+                    for (int ix=0; ix < d; ++ix)
+                    {
+                        // If distance from root < tol, we are done
+                        if ((roots[ix][0]-x0_col[jx][0])*(roots[ix][0]-x0_col[jx][0]) + ((roots[ix][1]-x0_col[jx][1])*(roots[ix][1]-x0_col[jx][1])) < 10e-6)
+                        {
+                            attractor[jx] = (char)ix;
+                            // printf("k %d ", k);//  no longer poses problems if convergence_loc >250
+                            break;
+                        }
+                    }
+                }
+
+                // If convergence was reached, stop iteration
+                if (attractor[jx] != -1) {
+                    //	printf("hey conv: %hhud , attractor: %hhud ,real:%f, im: %f \n ",convergence[jx], attractor[jx] ,x0_col[jx][0],x0_col[jx][1]);
+                    break;
+                }
+                
                 // Calculates x_(k+1)
                 fun_polar(&x0_col[jx][0],&x0_col[jx][1],d); 
             } // End end iteration for x0
 
             if (k > 50) // maxiter = 50, but wrong type
-                k = 50;	 
+                k = 50;	  
+
             convergence[jx] = (char)k;    
         } // End row
         
@@ -297,7 +279,7 @@ void* newton_main(void* args)
         // Set convergence and attractor value for row
         convergences[row] = convergence;
         attractors[row]= attractor;
-	
+
         pthread_mutex_lock(&item_done_mutex);
         item_done[row] = 1;
         pthread_mutex_unlock(&item_done_mutex);
@@ -307,7 +289,6 @@ void* newton_main(void* args)
     } // End for all rows
     free(x0_col);
     free(x0_col_entries);
-  } // matches else
     return NULL;
 } // End function newton_main
 
@@ -327,20 +308,20 @@ void fun_polar(float * x0re, float * x0im, int  d)
 	  *x0re  =*x0re*(0.5+0.5/square);
 	  *x0im  =*x0im*(0.5-0.5/square);
 	}
-      else if (d > 2 ) // && d%2 == 1) no longer need case where d is even..
+      else
 	{      // allt det svåra handlar om termen 1/x0 . tänk i polära koordinater
-	  float angle =-1*atan2(*x0im,*x0re)*(d-1); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
-	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
 	  float divisor= 1.0f/d;
+      float angle =atan2(*x0im,*x0re)*(1-d); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
+	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
+      float inside = 1 - divisor;
 	  for (size_t ix=1; ix<d; ix+=2) 
 	    {
 	      divisor *= invsquare;   // ger talet man ska dela på. för udda tal e d chill ingen squareroot
 	    }	    
-	  *x0re  =*x0re *(1-1.0/d) + cos(angle)*divisor;
-	  *x0im  =*x0im *(1-1.0/d) + sin(angle)*divisor;
+	  *x0re  =*x0re *inside + cos(angle)*divisor;
+	  *x0im  =*x0im *inside + sin(angle)*divisor;
 	}
-     /* no longer need d=4
-    else // note we only need for d=4, maybe skip forloop later just write d=4
+    /*else // note we only need for d=4, maybe skip forloop later just write d=4
 	{
 	  float angle=-1*atan2(*x0im,*x0re)*(d-1); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
 	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
@@ -351,7 +332,7 @@ void fun_polar(float * x0re, float * x0im, int  d)
 	    }	    
 	  *x0re  =*x0re *(1-1.0/d) + cos(angle)*divisor;
 	  *x0im  =*x0im *(1-1.0/d) + sin(angle)*divisor;
-	  } */
+	}*/
   }
 
   void calc_roots(float** roots, int d){                                                                                                                                             

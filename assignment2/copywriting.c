@@ -180,9 +180,33 @@ void* write_main( void * args)
 
 void* newton_main(void* args)
 {
-  size_t offset = *((size_t*) args);
-  free(args);
- // Allocate memory for all initialvalues of x, this should happen oncewithin every thread      
+  if (d==1)
+    {
+      for (int row=0;row<l;++row)
+	    {
+	    char * attractor = (char*) calloc(l, sizeof(char)); //it is not globally allocated now
+	    char * convergence= (char*) malloc (sizeof(char)*l); //it is not globally allocated now  	
+	    for (int ix=0; ix<l; ++ix)
+	        {
+	        convergence[ix]=1;
+	        // attractor[ix]=0
+		    }
+	  
+	    convergences[row] = convergence;
+	    attractors[row]= attractor;
+	  
+	    pthread_mutex_lock(&item_done_mutex);
+	    item_done[row] = 1;
+	    pthread_mutex_unlock(&item_done_mutex);
+	    }
+      // printf("d==1\n");
+    }
+  // now if d is not equal to one...
+  else 
+    {
+        size_t offset = *((size_t*) args);
+        free(args);
+        // Allocate memory for all initialvalues of x, this should happen oncewithin every thread      
         float * x0_col_entries= (float*) malloc(sizeof(float)*(l*2));
         float ** x0_col = (float**) malloc(sizeof(float*)*l); // Contains x0 values for one row, all columns
         for ( size_t ix = 0, jx = 0; ix < l; ++ix, jx+=2)
@@ -190,47 +214,46 @@ void* newton_main(void* args)
             x0_col[ix] = x0_col_entries + jx;
         }  
         
-  /* loops over every row */
-    for ( size_t row = offset; row < l   ; row += n_threads )
-    {
-        // Allocate memory for all initialvalues of x, this should happen within every thread      
-        //  float * x0_col_entries= (float*) malloc(sizeof(float)*(l*2));
-        // float ** x0_col = (float**) malloc(sizeof(float*)*l); // Contains x0 values for one row, all columns
-        //for ( size_t ix = 0, jx = 0; ix < l; ++ix, jx+=2)
-        //{
-         //   x0_col[ix] = x0_col_entries + jx;
-        //}  
-        float imagpart = -2 + 4 * (float)row / (l - 1);
-        // Initialise x0_col
-        for (size_t col = 0; col < l; ++col)
+        /* loops over every row */
+        for ( size_t row = offset; row < l   ; row += n_threads )
         {
-            x0_col[col][0] = -2 + 4 * (float)col / (l - 1);
-            //x0_col[col][1] = -2 + 4 * (float)row / (l - 1);
-            x0_col[col][1] = imagpart;
-
-        }
-        
-            
-        // The newton iteration
-        char maxiter = 50;
-        // Allocate memory for attractor/convergence
-	char * attractor =(char*) calloc(l, sizeof(char)); //it is globally allocated now
-	char * convergence=(char*) calloc(l, sizeof(char)); //it is globally allocated now  
-
-        // For x0 in row
-        for (size_t jx=0; jx < l; ++jx)
-        {
-            //x0_col[jx][1] = -2 + 4 * (float)row / (l - 1);
-            attractor[jx] = -1;
-            unsigned short int k = 0;
-            
-            // For iteration step k
-            for (; ; ++k)
+            // Allocate memory for all initialvalues of x, this should happen within every thread      
+            //  float * x0_col_entries= (float*) malloc(sizeof(float)*(l*2));
+            // float ** x0_col = (float**) malloc(sizeof(float*)*l); // Contains x0 values for one row, all columns
+            //for ( size_t ix = 0, jx = 0; ix < l; ++ix, jx+=2)
+            //{
+            //   x0_col[ix] = x0_col_entries + jx;
+            //}  
+            float imagpart = -2 + 4 * (float)row / (l - 1);
+            // Initialise x0_col
+            for (size_t col = 0; col < l; ++col)
             {
-                float xsquare = x0_col[jx][0]*x0_col[jx][0] + x0_col[jx][1]*x0_col[jx][1]; // useful computattion
+                x0_col[col][0] = -2 + 4 * (float)col / (l - 1);
+                //x0_col[col][1] = -2 + 4 * (float)row / (l - 1);
+                x0_col[col][1] = imagpart;
+
+            }
+        
+            // The newton iteration
+            char maxiter = 50;
+            // Allocate memory for attractor/convergence
+	        char * attractor =(char*) calloc(l, sizeof(char)); //it is globally allocated now
+	        char * convergence=(char*) calloc(l, sizeof(char)); //it is globally allocated now  
+
+            // For x0 in row
+            for (size_t jx=0; jx < l; ++jx)
+            {
+                //x0_col[jx][1] = -2 + 4 * (float)row / (l - 1);
+                attractor[jx] = -1;
+                unsigned short int k = 0;
+            
+                // For iteration step k
+                for (; ; ++k)
+                    {
+                    float xsquare = x0_col[jx][0]*x0_col[jx][0] + x0_col[jx][1]*x0_col[jx][1]; // useful computattion
                 
-                // If x_k really far away
-                if (xsquare < 0.000001 || x0_col[jx][0] > 10000000000 || x0_col[jx][0] < -10000000000 || x0_col[jx][1] > 10000000000 || x0_col[jx][1] < -10000000000)   
+                    // If x_k really far away
+                    if (xsquare < 0.000001 || x0_col[jx][0] > 10000000000 || x0_col[jx][0] < -10000000000 || x0_col[jx][1] > 10000000000 || x0_col[jx][1] < -10000000000)   
                 {
                     convergence[jx]= maxiter; // assign maximum no if iterations 
                     attractor[jx]=(char)d;
@@ -289,6 +312,7 @@ void* newton_main(void* args)
     } // End for all rows
     free(x0_col);
     free(x0_col_entries);
+    } // else ending
     return NULL;
 } // End function newton_main
 
