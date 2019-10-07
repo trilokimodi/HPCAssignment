@@ -132,7 +132,7 @@ void* write_main( void * args)
         //timespec_get(&tbegin,TIME_UTC);
         //do{
         
-        count = 1;
+        //count = 1;
         //Method 1
 
         //timespec_get(&tbegin,TIME_UTC);
@@ -162,7 +162,7 @@ void* write_main( void * args)
             fwrite(colorstring, len , 1 , fcolor);
             fwrite("\n",sizeof("\n"),1,fcolor);
 
-            for(int i=0,j=0,k=0;i<lines;++i)
+            /*for(int i=0,j=0,k=0;i<lines;++i)
             {
             flag = convergence[i];
             k=0;
@@ -170,7 +170,8 @@ void* write_main( void * args)
                 {
                 greystring[j++] = colorstrgrey[flag][k++];
                 }while(colorstrgrey[flag][k]!='\0');
-            }   
+            }*/
+
             //len = strlen(greystring);
             /*for(int i=0,j=0;i<lines;++i)
                 {
@@ -182,8 +183,12 @@ void* write_main( void * args)
                 greystring[j++] = ' ';
                 }
             */
-            len = strlen(greystring);
-            fwrite(greystring, len , 1 , fgrey);
+            for(int i = 0;i<lines;++i)
+            {
+                memcpy(greystring+(i*9),colorstrgrey+convergence[i],9*sizeof(char));
+            }
+            //len = strlen(greystring);
+            fwrite(greystring, 9*lines , 1 , fgrey);
             fwrite("\n",sizeof("\n"),1,fgrey);
 
             /*for(int j=0;j<lines;++j)
