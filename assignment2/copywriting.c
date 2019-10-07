@@ -188,6 +188,7 @@ void* newton_main(void* args)
         for ( size_t ix = 0, jx = 0; ix < l; ++ix, jx+=2)
         {
             x0_col[ix] = x0_col_entries + jx;
+            x0_col[ix][0] = -2 + 4 * (float)ix / (l - 1);
         }  
         
   /* loops over every row */
@@ -202,11 +203,12 @@ void* newton_main(void* args)
         //}  
         
         // Initialise x0_col
-        for (size_t col = 0; col < l; ++col)
+        /*for (size_t col = 0; col < l; ++col)
         {
             x0_col[col][0] = -2 + 4 * (float)col / (l - 1);
             x0_col[col][1] = -2 + 4 * (float)row / (l - 1);
-        }
+        }*/
+        
             
         // The newton iteration
         char maxiter = 50;
@@ -217,6 +219,7 @@ void* newton_main(void* args)
         // For x0 in row
         for (size_t jx=0; jx < l; ++jx)
         {
+            x0_col[jx][1] = -2 + 4 * (float)row / (l - 1);
             attractor[jx] = -1;
             unsigned short int k = 0;
             
