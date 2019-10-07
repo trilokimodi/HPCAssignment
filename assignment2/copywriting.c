@@ -189,7 +189,7 @@ void* write_main( void * args)
             }*/
             len = strlen(greystring);
             fwrite(greystring, len , 1 , fgrey);
-            fwrite("\n",sizeof("/n"),1,fgrey);
+            fwrite("\n",1,1,fgrey);
 
             /*for(int j=0;j<lines;++j)
             {
