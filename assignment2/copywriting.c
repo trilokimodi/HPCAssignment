@@ -98,7 +98,7 @@ void* write_main( void * args)
     for(int i=50,j=0 ; j<=50 ; --i,++j)
     { 
         colorgrey = 50-i;
-        sprintf(colorstrgrey[j],"%d %d %d ",colorgrey,colorgrey,colorgrey);
+        sprintf(colorstrgrey[j],"%2d %2d %2d ",colorgrey,colorgrey,colorgrey);
     }
     struct timespec tbegin, tend;
     double timeelapsed;
