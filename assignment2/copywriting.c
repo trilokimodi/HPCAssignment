@@ -106,12 +106,14 @@ void* write_main( void * args)
     char * attractor; 
     char * convergence;
     char * item_done_loc = (char*)calloc(l, sizeof(char));
-    sprintf(filename,"newton_convergence_x%d.ppm",degree);
+    sprintf(filename,"newton_attractors_x%d.ppm",degree);
     fcolor=fopen(filename,"w");
     fprintf(fcolor, "P3\n%d %d\n7\n", re, lines);
-    sprintf(filename,"newton_attractors_x%d.ppm",degree);
+
+    sprintf(filename,"newton_convergence_x%d.ppm",degree);
     fgrey=fopen(filename,"w");
     fprintf(fgrey, "P3\n%d %d\n50\n", re, lines);
+    
     for ( size_t ix = 0; ix < l; )
     {
         pthread_mutex_lock(&item_done_mutex);
@@ -153,6 +155,7 @@ void* write_main( void * args)
                 fwrite(colorstr[flag], strlen(colorstr[flag]) , 1 , fcolor);
             }
             fwrite("\n",sizeof("\n"),1,fcolor);
+            
             for(int j=0;j<lines;++j)
             {
                 flag = convergence[j];
@@ -164,13 +167,15 @@ void* write_main( void * args)
 	  
 	        //for(size_t i = 0; i < l; ++i)
 	        // printf("Convergences[%zu] = %hhu, attractors[%zu] = %hhu\n", i, convergence[i], i, attractor[i]);
-	    } 
+            free(attractor);
+	        free(convergence);
+        } 
     }
-    free(attractor);
-	free(convergence);
     fclose(fcolor);
     fclose(fgrey);
     free(item_done_loc);
+    free(colorstring);
+    free(greystring);
 }
 
 void* newton_main(void* args)
@@ -221,7 +226,7 @@ void* newton_main(void* args)
                 float xsquare = x0_col[jx][0]*x0_col[jx][0] + x0_col[jx][1]*x0_col[jx][1]; // useful computattion
                 
                 // If x_k really far away
-                if (xsquare < 10e-6 || x0_col[jx][0] > 10e10 || x0_col[jx][0] <-1*10e10 || x0_col[jx][1] > 10e10 || x0_col[jx][1]<-1*10e10)   
+                if (xsquare < 0.000001 || x0_col[jx][0] > 10000000000 || x0_col[jx][0] < -10000000000 || x0_col[jx][1] > 10000000000 || x0_col[jx][1] < -10000000000)   
                 {
                     convergence[jx]= maxiter; // assign maximum no if iterations 
                     attractor[jx]=(char)d;
@@ -299,19 +304,20 @@ void fun_polar(float * x0re, float * x0im, int  d)
 	  *x0re  =*x0re*(0.5+0.5/square);
 	  *x0im  =*x0im*(0.5-0.5/square);
 	}
-      else if (d > 2 && d%2 == 1)
+      else
 	{      // allt det svåra handlar om termen 1/x0 . tänk i polära koordinater
-	  float angle =-1*atan2(*x0im,*x0re)*(d-1); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
-	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
 	  float divisor= 1.0f/d;
+      float angle =atan2(*x0im,*x0re)*(1-d); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
+	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
+      float inside = 1 - divisor;
 	  for (size_t ix=1; ix<d; ix+=2) 
 	    {
 	      divisor *= invsquare;   // ger talet man ska dela på. för udda tal e d chill ingen squareroot
 	    }	    
-	  *x0re  =*x0re *(1-1.0/d) + cos(angle)*divisor;
-	  *x0im  =*x0im *(1-1.0/d) + sin(angle)*divisor;
+	  *x0re  =*x0re *inside + cos(angle)*divisor;
+	  *x0im  =*x0im *inside + sin(angle)*divisor;
 	}
-    else // note we only need for d=4, maybe skip forloop later just write d=4
+    /*else // note we only need for d=4, maybe skip forloop later just write d=4
 	{
 	  float angle=-1*atan2(*x0im,*x0re)*(d-1); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
 	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
@@ -322,7 +328,7 @@ void fun_polar(float * x0re, float * x0im, int  d)
 	    }	    
 	  *x0re  =*x0re *(1-1.0/d) + cos(angle)*divisor;
 	  *x0im  =*x0im *(1-1.0/d) + sin(angle)*divisor;
-	}
+	}*/
   }
 
   void calc_roots(float** roots, int d){                                                                                                                                             
