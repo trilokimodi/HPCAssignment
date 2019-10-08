@@ -14,7 +14,7 @@ CFLAGS = -O2 -lm -pthread
 #SRCS := almost.c
 #SRCS := copywriting.c
 
-SRCS := differentfunpolar.c
+SRCS := newton.c
 
 # SRCS := $(filter-out mul_cpx_separatefile.c, $(SRCS)) # Doesn't compile mul_cpx_separatefile.c
 BINS := $(SRCS:%.c=%)
