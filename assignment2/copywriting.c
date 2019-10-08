@@ -9,7 +9,7 @@
 #include<math.h>
 static int degree, n_threads, lines;
 void static inline analyse_parsing(int argc1,const char *argv1[]);
-void fun_polar(float * x0re, float * x0im, int  d);
+void fun_polar(float * x0re, float * x0im);
 void calc_roots(float** roots, int d);
 void* newton_main(void* args);
 void* write_main( void * args);
@@ -162,7 +162,7 @@ void* write_main( void * args)
             fwrite(colorstring, len , 1 , fcolor);
             fwrite("\n",sizeof("\n"),1,fcolor);
 
-            for(int i=0,j=0,k=0;i<lines;++i)
+            /*for(int i=0,j=0,k=0;i<lines;++i)
             {
             flag = convergence[i];
             k=0;
@@ -170,7 +170,7 @@ void* write_main( void * args)
                 {
                 greystring[j++] = colorstrgrey[flag][k++];
                 }while(colorstrgrey[flag][k]!='\0');
-            }
+            }*/
 
             //len = strlen(greystring);
             /*for(int i=0,j=0;i<lines;++i)
@@ -183,10 +183,10 @@ void* write_main( void * args)
                 greystring[j++] = ' ';
                 }
             */
-            /*for(int i = 0;i<lines;++i)
+            for(int i = 0;i<lines;++i)
             {
                 memcpy(greystring+(i*9),colorstrgrey+convergence[i],9*sizeof(char));
-            }*/
+            }
             len = strlen(greystring);
             fwrite(greystring, len , 1 , fgrey);
             fwrite("\n",1,1,fgrey);
@@ -220,6 +220,7 @@ void* write_main( void * args)
 
 void* newton_main(void* args)
 {
+  
   if (d==1)
     {
       for (int row=0;row<l;++row)
@@ -324,7 +325,7 @@ void* newton_main(void* args)
                 }
                 
                 // Calculates x_(k+1)
-                fun_polar(&x0_col[jx][0],&x0_col[jx][1],d); 
+                fun_polar(&x0_col[jx][0],&x0_col[jx][1]); 
             } // End end iteration for x0
 
             if (k > 50) // maxiter = 50, but wrong type
@@ -357,35 +358,64 @@ void* newton_main(void* args)
 } // End function newton_main
 
 // Calculates x_(k+1)
-void fun_polar(float * x0re, float * x0im, int  d)
+void fun_polar(float * x0re, float * x0im)
 {    
+    
+
+    if (degree == 5)
+    { 
+        float realp= *x0re;
+        float resq = (*x0re) * (*x0re);
+        float imsq = (*x0im) * (*x0im);
+        float divisor= 0.2;
+        float invsquare= 1.0f/(resq + imsq);
+        float divisor2 = 0.2*invsquare*invsquare*invsquare*invsquare;
+        *x0im = *x0im*(0.8)-(float)4*(realp)* (*x0im)* (resq-imsq) * divisor2;
+        *x0re = *x0re*(0.8)+(resq*resq - (float)6* resq *imsq + imsq*imsq) * divisor2;
+    }
+
+    else if(degree == 7)
+    {
+        float resq = *x0re*(*x0re);
+        float imsq = *x0im*(*x0im);
+        float divisor= 1.0f/7;
+        float invsquare= 1.0f/(resq+ imsq);
+        float divisor2 = divisor * invsquare * invsquare * invsquare * invsquare * invsquare * invsquare;
+        *x0im = *x0im*(1-divisor) - (2*(*x0re)*(*x0im)*(3*resq*resq - 10*resq*imsq + 3*imsq*imsq))*divisor2;
+        *x0re = *x0re*(1-divisor) + (resq*resq*resq + 15*resq*imsq*(imsq-resq) - imsq*imsq*imsq)*divisor2;
+    }
+
+    else if (degree == 2)
+	{
+	    float square= *x0re * *x0re + *x0im * *x0im;
+	    *x0re  = *x0re*(0.5+0.5/square);
+	    *x0im  = *x0im*(0.5-0.5/square);
+	}
+
+    
+    
     // printf(" real=%f, imaginary=%f\n",*x0re,*x0im);
       //  new idea! polar for large d
-     if (d==1)
+    /*if (d==1)
 	{
 	  *x0re=1;
 	  *x0im=0;
-	}
-      else if (d==2)
-	{
-	float square= *x0re * *x0re + *x0im * *x0im;
-	  *x0re  =*x0re*(0.5+0.5/square);
-	  *x0im  =*x0im*(0.5-0.5/square);
-	}
-      else
+	}*/
+    
+     /* else
 	{      // allt det svåra handlar om termen 1/x0 . tänk i polära koordinater
 	  float divisor= 1.0f/d;
       float angle =atan2(*x0im,*x0re)*(1-d); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
 	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
-      float inside = 1 - divisor;
+      //float inside = 1 - divisor;
 	  for (size_t ix=1; ix<d; ix+=2) 
 	    {
 	      divisor *= invsquare;   // ger talet man ska dela på. för udda tal e d chill ingen squareroot
 	    }	    
-	  *x0re  =*x0re *inside + cos(angle)*divisor;
-	  *x0im  =*x0im *inside + sin(angle)*divisor;
+	  *x0re  =*x0re *(1-1.0f/d) + cos(angle)*divisor;
+	  *x0im  =*x0im *(1-1.0f/d) + sin(angle)*divisor;
 	}
-    /*else // note we only need for d=4, maybe skip forloop later just write d=4
+    else // note we only need for d=4, maybe skip forloop later just write d=4
 	{
 	  float angle=-1*atan2(*x0im,*x0re)*(d-1); // ger vinkeln av nya komplexa talet i radianer, negativ pga är komplexkojugatet
 	  float invsquare= 1.0f/(*x0re**x0re+ *x0im**x0im); //
