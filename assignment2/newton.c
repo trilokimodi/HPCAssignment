@@ -7,17 +7,20 @@
 #include<stddef.h>
 #include<time.h>
 #include<math.h>
-static int degree, n_threads, lines;
+
 void static inline analyse_parsing(int argc1,const char *argv1[]);
 void perform_iteration(double * x0re, double * x0im, double xsquare);
 void calc_roots(double** roots, int d);
 void* newton_main(void* args);
 void* write_main( void * args);
+
+static int degree, n_threads, lines;
+pthread_mutex_t row_done_mutex;
+double ** roots;
 char ** convergences;
 char ** attractors;
 char * row_done;
-double ** roots;
-pthread_mutex_t row_done_mutex;
+
 #define d degree
 #define l lines
 
@@ -73,28 +76,25 @@ void main(int argc,const char *argv[])
 // Performs computing
 void* newton_main(void* args)
 {
-  if (d==1)
+    if (d==1)
     {
-      for (int row=0;row<l;++row)
+        for (int row=0;row<l;++row)
 	    {
-	    char * attractor = (char*) calloc(l, sizeof(char)); //it is not globally allocated now
-	    char * convergence= (char*) malloc (sizeof(char)*l); //it is not globally allocated now  	
-	    for (int ix=0; ix<l; ++ix)
-	        {
-	        convergence[ix]=1;
-		}
-	  
-	    convergences[row] = convergence;
-	    attractors[row]= attractor;
-	  
-	    pthread_mutex_lock(&row_done_mutex);
-	    row_done[row] = 1;
-	    pthread_mutex_unlock(&row_done_mutex);
+            char * attractor = (char*) calloc(l, sizeof(char)); //it is not globally allocated now
+            char * convergence= (char*) malloc (sizeof(char)*l); //it is not globally allocated now  	
+            for (int ix=0; ix<l; ++ix)
+                convergence[ix]=1;
+        
+            convergences[row] = convergence;
+            attractors[row]= attractor;
+        
+            pthread_mutex_lock(&row_done_mutex);
+            row_done[row] = 1;
+            pthread_mutex_unlock(&row_done_mutex);
 	    }
     }
 
-  // now if d is not equal to one...
-  else 
+    else 
     {
         size_t offset = *((size_t*) args);
         free(args);
@@ -103,14 +103,14 @@ void* newton_main(void* args)
         double * x0_line_entries = (double*) malloc(sizeof(double)*(l*2));
         double ** x0_line = (double**) malloc(sizeof(double*)*l); // Contains x0 values for one row, all columns
         for ( size_t ix = 0, jx = 0; ix < l; ++ix, jx+=2)
-        {
             x0_line[ix] = x0_line_entries + jx;
-        }  
         
         // For each row
         for ( size_t row = offset; row < l   ; row += n_threads )
         {
             double imagpart = -2 + 4 * (double)row / l;
+            char maxiter = 50;
+
             // Initialise x0_line
             for (size_t col = 0; col < l; ++col)
             {
@@ -118,11 +118,9 @@ void* newton_main(void* args)
                 x0_line[col][1] = imagpart;
             }
 
-            char maxiter = 50;
-
             // Allocate memory for attractor/convergence
-	    char * attractor =(char*) calloc(l, sizeof(char)); //it is globally allocated now
-	    char * convergence=(char*) calloc(l, sizeof(char)); //it is globally allocated now  
+            char * attractor =(char*) calloc(l, sizeof(char)); //it is globally allocated now
+            char * convergence=(char*) calloc(l, sizeof(char)); //it is globally allocated now  
 
             // For x0 in row
             for (size_t jx=0; jx < l; ++jx)
@@ -132,7 +130,7 @@ void* newton_main(void* args)
             
                 // For iteration step k
                 for (; ; ++k) // add limit to k for debugging
-                    {
+                {
                     double xsquare = x0_line[jx][0]*x0_line[jx][0] + x0_line[jx][1]*x0_line[jx][1]; // useful computattion
                 
                     // If x_k really far away
@@ -158,32 +156,31 @@ void* newton_main(void* args)
 	                    }
 	                }
 
-           	     // If convergence was reached, stop iteration
-           	     if (attractor[jx] != -1) {
-           	         break;
-           	     }
+           	    // If convergence was reached, stop iteration
+           	    if (attractor[jx] != -1)
+                    break;
            	     
-           	     // Calculates x_(k+1)
-           	     perform_iteration(&x0_line[jx][0],&x0_line[jx][1],xsquare); 
-           	 } // End end iteration for x0
+           	    // Calculates x_(k+1)
+           	    perform_iteration(&x0_line[jx][0],&x0_line[jx][1],xsquare); 
+           	    } // End end iteration for x0
 
-            if (k > 50) // If convergence isn't met before 50, say that it converged at 50
-      		    k = 50;	  
+                // If convergence isn't met before 50, say that it converged at 50
+                if (k > 50) 
+                    k = 50;	  
 
-            convergence[jx] = (char)k;    
-        } // End row
+                convergence[jx] = (char)k;    
+            } // End row
         
-        // Set convergence and attractor value for row
-        convergences[row] = convergence;
-        attractors[row]= attractor;
+            // Set convergence and attractor value for row
+            convergences[row] = convergence;
+            attractors[row]= attractor;
 
-        pthread_mutex_lock(&row_done_mutex);
-        row_done[row] = 1;
-        pthread_mutex_unlock(&row_done_mutex);
-
-    } // End for all rows
-    free(x0_line);
-    free(x0_line_entries);
+            pthread_mutex_lock(&row_done_mutex);
+            row_done[row] = 1;
+            pthread_mutex_unlock(&row_done_mutex);
+        } // End for all rows
+        free(x0_line);
+        free(x0_line_entries);
     } // else ending
     return NULL;
 } // End function newton_main
@@ -197,9 +194,9 @@ void perform_iteration(double * x0re, double * x0im, double xsquare)
         double resq = (*x0re) * (*x0re);
         double imsq = (*x0im) * (*x0im);
         double invsquare= (double)1.0/(xsquare);
-	double divisor2 = (double)0.2*invsquare*invsquare*invsquare*invsquare;
-	*x0im = (*x0im *((double)0.8))- ((double)4*(realp)* (*x0im)* (resq-imsq) * divisor2);
-	*x0re = (*x0re *((double)0.8))+ ((xsquare * xsquare - (double)8 * resq * imsq) * divisor2);
+        double divisor2 = (double)0.2*invsquare*invsquare*invsquare*invsquare;
+        *x0im = (*x0im *((double)0.8))- ((double)4*(realp)* (*x0im)* (resq-imsq) * divisor2);
+        *x0re = (*x0re *((double)0.8))+ ((xsquare * xsquare - (double)8 * resq * imsq) * divisor2);
     }
 
     else if(degree == 7)
@@ -215,23 +212,23 @@ void perform_iteration(double * x0re, double * x0im, double xsquare)
 
     else if (degree == 2)
     {
-        *x0re  = *x0re*(0.5+0.5/xsquare);
-	*x0im  = *x0im*(0.5-0.5/xsquare);
+        *x0re = *x0re*(0.5+0.5/xsquare);
+	    *x0im = *x0im*(0.5-0.5/xsquare);
     }
 
 }
 
 void calc_roots(double** roots, int d)
 {
-  double twopi=6.2831853;
-  roots[0][0]=1.0; // always one real root                                                                                                                                         
-  roots[0][1]=0.0;
+    double twopi=6.2831853;
+    roots[0][0]=1.0; // always one real root                                                                                                                                         
+    roots[0][1]=0.0;
   
-  for (size_t ix=1; ix < d; ++ix)
-  {
-    roots[ix][0]= cos ((double)ix*twopi/d);
-    roots[ix][1]= sin ((double)ix*twopi/d);
-  }
+    for (size_t ix=1; ix < d; ++ix)
+    {
+        roots[ix][0]= cos ((double)ix*twopi/d);
+        roots[ix][1]= sin ((double)ix*twopi/d);
+    }
 }
 
 // Write to ppm files
@@ -250,13 +247,13 @@ void* write_main( void * args)
     // Colors used for attractors
     char colorstr[8][7] = 
     {
-    "4 0 0 ","0 4 0 ","0 0 4 ","3 3 0 ","0 5 5 ","3 0 5 ","4 2 0 ","4 0 2 "
+        "4 0 0 ","0 4 0 ","0 0 4 ","3 3 0 ","0 5 5 ","3 0 5 ","4 2 0 ","4 0 2 "
     };
 
     // Creates array of greyscale triplets of size 50 used for convergence
     for(int i=0 ; i <= 50 ; ++i)
     { 
-        colorgrey = 50-i;
+        colorgrey = i;
         sprintf(colorstrgrey[i],"%2d %2d %2d ",colorgrey,colorgrey,colorgrey);
     }
 
@@ -279,39 +276,38 @@ void* write_main( void * args)
     {
         pthread_mutex_lock(&row_done_mutex);
         if ( row_done[ix] != 0 )
-	    {
 	        memcpy(row_done_loc, row_done, l*sizeof(char));
-	    }
+        
         pthread_mutex_unlock(&row_done_mutex);
       
         if ( row_done_loc[ix] == 0 ) {
-	    nanosleep(&sleep_timespec, NULL);
-	    continue;
+            nanosleep(&sleep_timespec, NULL);
+            continue;
         }
        
         for ( ; ix < l && row_done_loc[ix] != 0; ++ix )
-	{
+	    {
             convergence = convergences[ix]; 
-	    attractor = attractors[ix];
-	    
-	    // For each x0, add convergence and attractor color triplet to array
-	    for(int i = 0;i<lines;++i)
+	        attractor = attractors[ix];
+            
+            // For each x0, add convergence and attractor color triplet to array
+            for(int i = 0;i<lines;++i)
             {
                 memcpy(colorstring + i * 6,colorstr+attractor[i],6*sizeof(char));
                 memcpy(greystring+(i*9),colorstrgrey+convergence[i],9*sizeof(char));
             }
 
-	    // Write array of color triplets to file
+            // Write array of color triplets to file
             fwrite(colorstring, strlen(colorstring), 1 , fcolor);
             fwrite("\n",1,1, fcolor);
 
-	    // Write array of greyscale triplets to file
+            // Write array of greyscale triplets to file
             fwrite(greystring, strlen(greystring), 1 , fgrey);
             fwrite("\n",1,1,fgrey);
 
-	    // Freedom
+            // Freedom
             free(attractor);
-	    free(convergence);
+            free(convergence);
         } 
     }
     free(row_done_loc);
@@ -333,37 +329,37 @@ void static inline analyse_parsing(int argc1,const char *argv1[])
         ++iter;
         if(index=='?')
             printf("Invalid arguement/No value was passed for %c\n",optopt);
+
         else if(index=='t')
         {
             if(optarg[0]=='-')
-            {
                 printf("No value is passed for threads\n");
-            }
+
             else
             {
                 args = optarg;
                 n_threads = strtol(args,(char ** restrict)argv1,10);
             }
         }
+
         else if(index=='l')
         {
             if(optarg[0]=='-')
-            {
                 printf("No value is passed for lines\n");
-            }
+
             else
             {
                 args = optarg;
                 lines = strtol(args,(char ** restrict)argv1,10);
             }
         }
+
         else
         {
             
             if(!optarg[0])
-            {
                 printf("No value is passed for degree\n");
-            }
+
             else
             {
                 args = optarg;
@@ -372,7 +368,5 @@ void static inline analyse_parsing(int argc1,const char *argv1[])
         }
     }
     if(iter==0)
-    {
         printf("No value is passed for threads, degree and lines\n");
-    }
 }
