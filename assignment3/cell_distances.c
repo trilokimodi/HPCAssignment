@@ -15,7 +15,7 @@ int main(int argc,const char * argv[])
 
   /* Open file, read number of lines */
   FILE *fptr;
-  fptr = fopen("cells","r");
+  fptr = fopen("cell_50","r");
   fseek(fptr,0,SEEK_END);
   int num_lines = (ftell(fptr))/24;
   fseek(fptr,0,SEEK_SET);

@@ -7,7 +7,7 @@
 
 CC = gcc			# compiler to use
 
-CFLAGS =-g -O2 -S -lm -fopenmp
+CFLAGS =-g -O2 -lm -fopenmp
 
 #SRCS := $(wildcard *.c)
 SRCS := cell_distances.c
