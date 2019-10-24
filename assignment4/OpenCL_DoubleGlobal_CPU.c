@@ -116,7 +116,7 @@ int main(int argc,const char * argv[])
 
   // Load the kernel function code into string
   FILE *fp;
-  fp = fopen("compute_temperatures_kernel.cl", "r");
+  fp = fopen("compute_temperatures_doubleglobal_CPU.cl", "r");
   if (!fp)
   {
     printf("Can't load kernel\n");
@@ -186,17 +186,16 @@ int main(int argc,const char * argv[])
   // Execute the OpenCL kernel on the list for n-iterations
   struct timespec tg1, tg2;
   timespec_get(&tg1,TIME_UTC);
-  const size_t global = length-2;
+  const size_t global[] = {length-2,width-2}; 
   for(int i=0;i<num_iterations/2;++i)
   {
     clSetKernelArg(kernel, 0, sizeof(cl_mem), &told_mem_obj);
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &tnew_mem_obj);
-    clEnqueueNDRangeKernel(command_queue, kernel, 1 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
-    clFinish(command_queue);
+    clEnqueueNDRangeKernel(command_queue, kernel, 2 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
+    
     clSetKernelArg(kernel, 0, sizeof(cl_mem), &tnew_mem_obj);
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &told_mem_obj);
-    clEnqueueNDRangeKernel(command_queue, kernel, 1 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
-    clFinish(command_queue);
+    clEnqueueNDRangeKernel(command_queue, kernel, 2 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
   }
    //clFinish(command_queue);
    timespec_get(&tg2,TIME_UTC);
@@ -209,7 +208,7 @@ int main(int argc,const char * argv[])
   printf("Time taken for one single iteration by timespec_get is %lf\n",timeelapsed);
   clFinish(command_queue);
 
-// for(int i=length*width-1,iter=0;iter<9;--i)
+// for(int i=length*width-1,iter=0;iter<5;--i)
 // {
 //   if(told[i]!=0){
 //     ++iter;

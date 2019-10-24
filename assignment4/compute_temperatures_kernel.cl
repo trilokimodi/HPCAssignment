@@ -1,7 +1,6 @@
 __kernel void temperature_diffusion(
-    __global long double * told,
-    __global long double * tnew,
-    int l,
+    __global double * told,
+    __global double * tnew,
     int w,
     float dt
 )
