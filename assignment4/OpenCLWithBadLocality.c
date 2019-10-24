@@ -194,21 +194,37 @@ int main(int argc,const char * argv[])
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &tnew_mem_obj);
     clEnqueueNDRangeKernel(command_queue, kernel, 1 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
     clFinish(command_queue);
+    
     clSetKernelArg(kernel, 0, sizeof(cl_mem), &tnew_mem_obj);
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &told_mem_obj);
     clEnqueueNDRangeKernel(command_queue, kernel, 1 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
     clFinish(command_queue);
   }
-   //clFinish(command_queue);
+
+  if(num_iterations%2!=0)
+  {
+    clSetKernelArg(kernel, 0, sizeof(cl_mem), &told_mem_obj);
+    clSetKernelArg(kernel, 1, sizeof(cl_mem), &tnew_mem_obj);
+    clEnqueueNDRangeKernel(command_queue, kernel, 2 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
+    
+
+    timespec_get(&tg2,TIME_UTC);
+    double timeelapsed = (double)((double)(tg2.tv_sec - tg1.tv_sec))+(double)((double)(tg2.tv_nsec - tg1.tv_nsec)/1000000000);
+    printf("Time taken for one single iteration by timespec_get is %lf\n",timeelapsed);
+    
+    clEnqueueReadBuffer(command_queue, tnew_mem_obj, CL_TRUE,0, length * width * sizeof(double), temperatureold , 0, NULL, NULL);  
+  }
+  else
+  {
+   
+   clFinish(command_queue);
+   
    timespec_get(&tg2,TIME_UTC);
    double timeelapsed = (double)((double)(tg2.tv_sec - tg1.tv_sec))+(double)((double)(tg2.tv_nsec - tg1.tv_nsec)/1000000000);
-   printf("Time taken for one single iteration by timespec_get is %lf\n",timeelapsed);
-
-  clEnqueueReadBuffer(command_queue, told_mem_obj, CL_TRUE,0, length * width * sizeof(double), temperatureold , 0, NULL, NULL);
-  timespec_get(&tg2,TIME_UTC);
-  timeelapsed = (double)((double)(tg2.tv_sec - tg1.tv_sec))+(double)((double)(tg2.tv_nsec - tg1.tv_nsec)/1000000000);
-  printf("Time taken for one single iteration by timespec_get is %lf\n",timeelapsed);
-  clFinish(command_queue);
+   printf("Time taken for one single iteration by timespec_get is %lf\n",timeelapsed);    
+   
+   clEnqueueReadBuffer(command_queue, told_mem_obj, CL_TRUE,0, length * width * sizeof(double), temperatureold , 0, NULL, NULL);
+  }
 
 // for(int i=length*width-1,iter=0;iter<9;--i)
 // {
