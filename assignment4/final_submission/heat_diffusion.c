@@ -7,22 +7,24 @@
 #include <getopt.h>
 #include <CL/cl.h>
 #include <string.h>
-#include <time.h>
 
-void static inline analyse_parsing(int argc1, const char *argv1[], int * num_iterations1, float * diffusion_constant1 , int * length1, int * width1);
+void static inline analyse_parsing(int argc1, const char *argv1[], int * num_iterations1, float * diffusion_constant1);
 
 int main(int argc,const char * argv[])
 {
   int num_iterations,length,width;
   float diffusion_constant;
   #define d diffusion_constant
-  analyse_parsing(argc , argv , &num_iterations , &diffusion_constant, &length, &width);
-  char filename[100];
-  sprintf(filename,"diffusion_%d_%d",length,width);
+  analyse_parsing(argc , argv , &num_iterations , &diffusion_constant);
 
   /* Open file, read number of characters */
   FILE *fptr;
-  fptr = fopen(filename,"r");
+  fptr = fopen("diffusion","r");
+  if (!fptr)
+  {
+    printf("can't open diffusion file\n");
+    exit(0);
+  }
   fseek(fptr,0,SEEK_END);
   int last_character = (ftell(fptr));
   fseek(fptr,0,SEEK_SET);
@@ -31,7 +33,6 @@ int main(int argc,const char * argv[])
   width+=2;
   
   /* Assign all doubles with initial value as 0 and boundary too*/  
-  //double temperatureold[length+2][width+2],temperaturenew[length+2][width+2];
   double * temperatureold = (double *)malloc(sizeof(double) * length * width);
 
   for (int i = 0; i < length*width ; ++i)
@@ -42,7 +43,6 @@ int main(int argc,const char * argv[])
   // Initialize the temperature values from file
   do
   {
-    //fscanf(fptr,"%d %d %Lf",&x_position,&y_position,&temperatureold[(x_position+1)*width+(y_position+1)]);
     fscanf(fptr ,"%d %d ", &x_position, &y_position);
     fscanf(fptr ,"%lf", &temperatureold[(x_position+1)*width + (y_position+1)]);
   }while(ftell(fptr)<last_character);
@@ -50,15 +50,6 @@ int main(int argc,const char * argv[])
   fclose(fptr);  
 
   #define told temperatureold
-
- /* for(int i=0; i< length*width; ++i)
-  {
-    printf("i=%d, ", i);
-    printf("%Lf ",told[i]);
-    printf("hi\n");
-    //if((i+1)%width==0)
-    //printf("\n");
-  }*/
 
   cl_int error;
 
@@ -80,21 +71,7 @@ int main(int argc,const char * argv[])
     printf("Can't get device\n");
     return 0;
   }
-
-  //get device info
-  // size_t deviceinfosize;
-  // char devicename[1000];
-  // if(clGetDeviceInfo(device_id,CL_DEVICE_NAME,1000,devicename,NULL) != CL_SUCCESS)
-  // {
-  //   printf("Can't get info\n");
-  //   return 0;
-  // }
-  // else
-  // {
-  //   fprintf(stderr, "Device name %s\n",devicename);
-  // }
-  
-    
+   
   // Create an OpenCL context
   cl_context context;
   cl_context_properties properties[] = {CL_CONTEXT_PLATFORM, (cl_context_properties) platform_id, 0};
@@ -116,7 +93,7 @@ int main(int argc,const char * argv[])
 
   // Load the kernel function code into string
   FILE *fp;
-  fp = fopen("compute_temperatures_doubleglobal_nobarrier.cl", "r");
+  fp = fopen("heat_diffusion.cl", "r");
   if (!fp)
   {
     printf("Can't load kernel\n");
@@ -142,7 +119,6 @@ int main(int argc,const char * argv[])
 
   // Build the program
   error = clBuildProgram(program,1,&device_id, NULL, NULL, NULL);
-  //error = clBuildProgram(program, num_devices , &device_id , NULL, NULL, NULL);
   if(error != CL_SUCCESS)
   {
     printf("can't build the program\n");
@@ -162,7 +138,7 @@ int main(int argc,const char * argv[])
   
   // Create the OpenCL kernel
   cl_kernel kernel;
-  kernel = clCreateKernel(program, "temperature_diffusion" , &error);
+  kernel = clCreateKernel(program, "heat_diffusion" , &error);
   if(error != CL_SUCCESS)
   {
     printf("Can't create Kernel\n");
@@ -184,8 +160,6 @@ int main(int argc,const char * argv[])
   clSetKernelArg(kernel, 3, sizeof(int), &diffusion_constant);
     
   // Execute the OpenCL kernel on the list for n-iterations
-  struct timespec tg1, tg2;
-  timespec_get(&tg1,TIME_UTC);
   const size_t global[] = {length-2,width-2}; 
   const size_t local[] = {20,20};
   for(int i=0;i<num_iterations/2;++i)
@@ -205,33 +179,10 @@ int main(int argc,const char * argv[])
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &tnew_mem_obj);
     clEnqueueNDRangeKernel(command_queue, kernel, 2 , NULL, (const size_t *)&global, NULL, 0, NULL, NULL);
     
-
-    timespec_get(&tg2,TIME_UTC);
-    double timeelapsed = (double)((double)(tg2.tv_sec - tg1.tv_sec))+(double)((double)(tg2.tv_nsec - tg1.tv_nsec)/1000000000);
-    printf("Time taken for one single iteration by timespec_get is %lf\n",timeelapsed);
-    
     clEnqueueReadBuffer(command_queue, tnew_mem_obj, CL_TRUE,0, length * width * sizeof(double), temperatureold , 0, NULL, NULL);  
   }
   else
-  {
-   
-   clFinish(command_queue);
-   
-   timespec_get(&tg2,TIME_UTC);
-   double timeelapsed = (double)((double)(tg2.tv_sec - tg1.tv_sec))+(double)((double)(tg2.tv_nsec - tg1.tv_nsec)/1000000000);
-   printf("Time taken for one single iteration by timespec_get is %lf\n",timeelapsed);    
-   
-   clEnqueueReadBuffer(command_queue, told_mem_obj, CL_TRUE,0, length * width * sizeof(double), temperatureold , 0, NULL, NULL);
-  }
-
-// for(int i=length*width-1,iter=0;iter<5;--i)
-// {
-//   if(told[i]!=0){
-//     ++iter;
-//     printf("%lf\n",told[i]);}
-//   //if((i+1)%(width) == 0)
-//   //printf("\n");
-// }
+    clEnqueueReadBuffer(command_queue, told_mem_obj, CL_TRUE,0, length * width * sizeof(double), temperatureold , 0, NULL, NULL);
 
   // Calculate average after n iterations
   double average = 0,averageabsolute = 0, difference = 0;
@@ -267,7 +218,7 @@ int main(int argc,const char * argv[])
   return 0;
 }
 
-void static inline analyse_parsing(int argc1, const char *argv1[], int * num_iterations1, float * diffusion_constant1, int * length1, int * width1)
+void static inline analyse_parsing(int argc1, const char *argv1[], int * num_iterations1, float * diffusion_constant1)
 {
   int index, iter=0; 
   char * args;
@@ -284,36 +235,10 @@ void static inline analyse_parsing(int argc1, const char *argv1[], int * num_ite
         args = optarg;
         *diffusion_constant1 = strtof(args,(char ** restrict)argv1);
       }
-      else if(index == 'l')
-      {
-        args = optarg;
-        *length1 = strtof(args,(char ** restrict)argv1);
-      }
-      else if(index == 'w')
-      {
-        args = optarg;
-        *width1 = strtof(args,(char ** restrict)argv1);
-      }
     }
-  if(iter!=4)
+  if(iter==0)
   {
-    printf("No values is passed for iterations and diffusion constant\n");	  
+    printf("No values are passed for iterations and diffusion constant\n");	  
     exit(0);
   }
 }
-
-// ctrl+k c/u for comm/uncomm
-//   /* Calculate heat diffusion for n - iterations */
-//   for(int k=0 ; k < num_iterations ; ++k)
-//   {
-//     for(int i=1 ; i < length - 1 ; ++i)
-//     {
-//       for(int j=1 ; j < width - 1 ; ++j)
-//       tnew[i][j] = told[i][j] + ((double)d * ((told[i-1][j] + told[i+1][j] + told[i][j-1] + told[i][j+1])/4 - told[i][j]));
-//     }
-//     for(int i=1 ; i < length - 1 ; ++i)
-//     {
-//       for(int j=1 ; j < width - 1 ; ++j)
-//       told[i][j] = tnew[i][j];
-//     }
-//   }
