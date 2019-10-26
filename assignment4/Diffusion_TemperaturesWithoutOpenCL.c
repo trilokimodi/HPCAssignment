@@ -80,7 +80,9 @@ int main(int argc,const char * argv[])
     for(int i=1 ; i < length - 1 ; ++i)
     {
       for(int j=1 ; j < width - 1 ; ++j)
-      told[i][j] = tnew[i][j];
+      {
+        told[i][j] = tnew[i][j];
+      }
     }
   }
 
